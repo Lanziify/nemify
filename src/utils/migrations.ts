@@ -1,11 +1,24 @@
 import { Kysely } from 'kysely';
-import { db } from './db';
-import { Database } from '@/types/db.schema';
 
-export async function up(db: Kysely<Database>): Promise<void> {
-  // Migration code
+export async function up(db: Kysely<any>): Promise<void> {
+  const deparmentTable = await db.schema
+    .createTable('department')
+    .addColumn('id', 'serial', (col) => col.primaryKey())
+    .addColumn('name', 'varchar');
+
+  await Promise.all(
+    [deparmentTable].map((builder) => {
+      builder.execute();
+    })
+  );
 }
 
-export async function down(db: Kysely<Database>): Promise<void> {
-  // Migration code
+export async function down(db: Kysely<any>): Promise<void> {
+  const deparmentTable = await db.schema.dropType('department');
+
+  await Promise.all(
+    [deparmentTable].map((builder) => {
+      builder.execute();
+    })
+  );
 }

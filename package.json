@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "biome check",
-    "format": "biome format --write"
+    "format": "biome format --write",
+    "migrate:better-auth": "bunx --bun @better-auth/cli migrate",
+    "generate:types": "kysely-codegen --out-file ./src/db/db.d.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -43,6 +45,8 @@
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "kysely-codegen": "^0.20.0",
+    "kysely-ctl": "^0.21.0",
     "prettier": "^3.8.4",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4",
