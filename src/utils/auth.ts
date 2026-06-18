@@ -2,10 +2,13 @@ import { betterAuth } from 'better-auth';
 import { admin, organization } from 'better-auth/plugins';
 import { nextCookies } from 'better-auth/next-js';
 import { db } from './db';
-import { inferOrgAdditionalFields } from 'better-auth/client/plugins';
+import { ac } from '@/data/permissions';
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL!,
+  emailAndPassword: {
+    enabled: true,
+  },
   socialProviders: {
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -16,10 +19,23 @@ export const auth = betterAuth({
     db: db,
     type: 'postgres',
   },
+  user: {
+    additionalFields: {
+      platformRole: {
+        type: 'string',
+        required: true,
+        defaultValue: 'system_user',
+        input: false,
+      },
+    },
+  },
   plugins: [
-    nextCookies(),
     admin(),
     organization({
+      ac,
+      dynamicAccessControl: {
+        enabled: true,
+      },
       schema: {
         organization: {
           modelName: 'campus',
@@ -36,12 +52,19 @@ export const auth = betterAuth({
             organizationId: 'campusId',
           },
         },
+        organizationRole: {
+          modelName: 'campusRole',
+          fields: {
+            organizationId: 'campusId',
+          },
+        },
         session: {
           fields: {
-            activeOrganizationId: "activeCampusId"
-          }
-        }
+            activeOrganizationId: 'activeCampusId',
+          },
+        },
       },
     }),
+    nextCookies(),
   ],
 });

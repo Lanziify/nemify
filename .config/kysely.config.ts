@@ -9,7 +9,7 @@ export default defineConfig({
     migrationFolder: '../src/migrations',
     getMigrationPrefix: getKnexTimestampPrefix,
   },
-  //   seeds: {
-  //     seedFolder: "seeds",
-  //   }
+  seeds: {
+    seedFolder: '../src/seeds',
+  },
 });

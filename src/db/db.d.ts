@@ -27,26 +27,7 @@ export interface Account {
   userId: string;
 }
 
-export interface Invitation {
-  createdAt: Generated<Timestamp>;
-  email: string;
-  expiresAt: Timestamp;
-  id: string;
-  inviterId: string;
-  organizationId: string;
-  role: string | null;
-  status: string;
-}
-
-export interface Member {
-  createdAt: Timestamp;
-  id: string;
-  organizationId: string;
-  role: string;
-  userId: string;
-}
-
-export interface Organization {
+export interface Campus {
   createdAt: Timestamp;
   id: string;
   logo: string | null;
@@ -55,8 +36,43 @@ export interface Organization {
   slug: string;
 }
 
+export interface CampusInvitation {
+  campusId: string;
+  createdAt: Generated<Timestamp>;
+  email: string;
+  expiresAt: Timestamp;
+  id: string;
+  inviterId: string;
+  role: string | null;
+  status: string;
+}
+
+export interface CampusMember {
+  campusId: string;
+  createdAt: Timestamp;
+  id: string;
+  role: string;
+  userId: string;
+}
+
+export interface CampusRole {
+  campusId: string;
+  createdAt: Generated<Timestamp>;
+  id: string;
+  permission: string;
+  role: string;
+  updatedAt: Timestamp | null;
+}
+
+export interface Department {
+  campusId: string | null;
+  id: string;
+  name: string | null;
+  slug: string | null;
+}
+
 export interface Session {
-  activeOrganizationId: string | null;
+  activeCampusId: string | null;
   createdAt: Generated<Timestamp>;
   expiresAt: Timestamp;
   id: string;
@@ -78,6 +94,7 @@ export interface User {
   id: string;
   image: string | null;
   name: string;
+  platformRole: string;
   role: string | null;
   updatedAt: Generated<Timestamp>;
 }
@@ -93,9 +110,11 @@ export interface Verification {
 
 export interface DB {
   account: Account;
-  invitation: Invitation;
-  member: Member;
-  organization: Organization;
+  campus: Campus;
+  campusInvitation: CampusInvitation;
+  campusMember: CampusMember;
+  campusRole: CampusRole;
+  department: Department;
   session: Session;
   user: User;
   verification: Verification;

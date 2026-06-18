@@ -3,28 +3,8 @@ export interface RoutePermission {
   description?: string;
 }
 
-export const routePermissions: RoutePermission[] = [
-  {
-    path: '/dashboard',
-    description: 'User dashboard - accessible to all authenticated users',
-  },
-  {
-    path: '/settings',
-    description: 'User settings - accessible to all authenticated users',
-  },
-  {
-    path: '/admin',
-    description: 'Admin panel - only for admins',
-  },
-];
+export const routePermissions: RoutePermission[] = [];
 
+// export function isProtectedRoute(path: string): boolean {}
 
-// export function isProtectedRoute(path: string): boolean {
-//   return routePermissions.some(
-//     (p) => path.startsWith(p.path) && p.requiredRole !== Role.GUEST
-//   );
-// }
-
-// export function isPublicRoute(path: string): boolean {
-//   return ['/login', '/'].includes(path);
-// }
+// export function isPublicRoute(path: string): boolean {}

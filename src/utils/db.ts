@@ -1,5 +1,4 @@
 import { DB } from '@/db/db';
-import { Database } from '@/db/schema';
 import { Kysely, PostgresDialect } from 'kysely';
 import { Pool } from 'pg';
 
