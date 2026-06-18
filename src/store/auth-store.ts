@@ -1,9 +1,8 @@
 'use client';
 
 import { create } from 'zustand';
-import { authClient } from '@/utils/auth-client';
 import type { Session, User } from 'better-auth/types';
-import { LoginFormValues } from '@/components/custom/login-form';
+import { SignUpEmailValues } from '@/feature/auth/schema/auth.schema';
 
 interface AuthStore {
   user: User | null;
@@ -12,7 +11,7 @@ interface AuthStore {
   isInitialized: boolean;
   error: Error | null;
   initSession: () => Promise<void>;
-  login: (credentials: LoginFormValues) => Promise<void>;
+  login: (credentials: SignUpEmailValues) => Promise<void>;
   logout: () => Promise<void>;
   setLoading: (loading: boolean) => void;
 }
