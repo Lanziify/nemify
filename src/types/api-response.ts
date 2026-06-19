@@ -1,10 +1,9 @@
-type BaseError = {
+export type BaseError = {
   code: string;
   message: string;
+  details?: Record<string, unknown> | unknown;
 };
 
-export type ApiSuccessResponse<T> = { data: T; error: null };
-export type ApiErrorResponse<E> = { data: null; error: E };
-export type ApiResponse<T, E extends BaseError> =
-  | ApiSuccessResponse<T>
-  | ApiErrorResponse<E>;
+export type Success<T> = { data: T; error: null };
+export type Error<E> = { data: null; error: E };
+export type Result<T, E extends BaseError> = Success<T> | Error<E>;

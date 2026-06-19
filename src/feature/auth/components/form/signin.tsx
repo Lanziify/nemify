@@ -1,9 +1,9 @@
 'use client';
 
 import * as React from 'react';
-import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,9 +20,14 @@ import {
   signInEmailPasswordSchema,
   SignInEmailPasswordValues,
 } from '../../schema/auth.schema';
+import { toast } from 'sonner';
 
-export function LoginForm() {
-  const [loading, setLoading] = useState(false);
+export function SignInForm() {
+  const { isLoading, signIn } = useAuthStore();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackURL = searchParams.get('callbackURL');
+  const message = searchParams.get('message');
 
   const {
     register,
@@ -33,24 +38,47 @@ export function LoginForm() {
     defaultValues: {
       email: '',
       password: '',
+      rememberMe: false,
+      callbackURL: callbackURL || '',
     },
   });
 
-  const onSubmit = async (data: SignInEmailPasswordValues) =>
-    useAuthStore.getState().login(data);
+  // Show message if present in URL params
+  React.useEffect(() => {
+    if (message) {
+      toast.info(message);
+    }
+  }, [message]);
+
+  const onSubmit = async (data: SignInEmailPasswordValues) => {
+    const result = await signIn(data);
+
+    if (result.error) {
+      toast.error(result.error.message);
+      return;
+    }
+
+    // Redirect to callback URL or default to /test
+    const redirectTo = data.callbackURL || callbackURL || '/test';
+    toast.success('Signed in successfully');
+    router.push(redirectTo);
+  };
 
   return (
     <div className="bg-muted/40 flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-4xl font-bold">Hello</CardTitle>
           <CardDescription>
             Sign in to continue to your dashboard
           </CardDescription>
         </CardHeader>
 
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+          <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-4"
+            autoComplete="off">
             {/* Email */}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
@@ -58,6 +86,7 @@ export function LoginForm() {
                 id="email"
                 type="email"
                 placeholder="you@example.com"
+                autoComplete="new-email"
                 {...register('email')}
               />
               {errors.email && (
@@ -72,6 +101,7 @@ export function LoginForm() {
                 id="password"
                 type="password"
                 placeholder="••••••••"
+                autoComplete="new-password"
                 {...register('password')}
               />
               {errors.password && (
@@ -82,8 +112,8 @@ export function LoginForm() {
             </div>
 
             {/* Submit */}
-            <Button className="w-full" type="submit" disabled={loading}>
-              {loading ? 'Signing in...' : 'Sign in'}
+            <Button className="w-full" type="submit" disabled={isLoading}>
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
         </CardContent>

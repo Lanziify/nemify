@@ -9,6 +9,7 @@
     "lint": "biome check",
     "format": "biome format --write",
     "migrate:better-auth": "bunx --bun @better-auth/cli migrate",
+    "migrate:latest": "bunx --bun kyesly mirgrate:latest",
     "generate:types": "kysely-codegen --out-file ./src/db/db.d.ts"
   },
   "dependencies": {
@@ -25,6 +26,8 @@
     "lucide-react": "^1.18.0",
     "next": "16.2.9",
     "next-themes": "^0.4.6",
+    "nodemailer": "^9.0.1",
+    "nodemailer-sendgrid": "^1.0.3",
     "pg": "^8.21.0",
     "radix-ui": "^1.5.0",
     "react": "19.2.4",
@@ -44,6 +47,8 @@
     "@biomejs/biome": "2.2.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.1",
+    "@types/nodemailer-sendgrid": "^1.0.3",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",

@@ -1,8 +1,8 @@
 import z, { ZodError } from 'zod';
 import { NextResponse } from 'next/server';
-import {NoResultError} from 'kysely'
 
-import { APIError } from 'better-auth/api';
+import { APIError, isAPIError } from 'better-auth/api';
+import { AppError } from './app-error';
 
 export function apiErrorParser(error: unknown): NextResponse {
   if (error instanceof ZodError) {
@@ -12,27 +12,30 @@ export function apiErrorParser(error: unknown): NextResponse {
         message: 'Invalid request body',
         details: z.flattenError(error),
       },
-      {
-        status: 400,
-      }
+      { status: 400 }
     );
   }
 
-  if (error instanceof APIError) {
+  if (error instanceof APIError || isAPIError(error)) {
     return NextResponse.json(
       {
         code: error.body?.code,
         message: error.body?.message,
         details: error.cause,
       },
-      {
-        status: error.statusCode,
-      }
+      { status: error.statusCode }
     );
   }
 
-  if (error instanceof NoResultError) {
-    console.log(error.name);
+  if (error instanceof AppError) {
+    return NextResponse.json(
+      {
+        code: error.errorCode,
+        message: error.message,
+        details: error.details,
+      },
+      { status: error.statusCode }
+    );
   }
 
   return NextResponse.json(
@@ -40,8 +43,6 @@ export function apiErrorParser(error: unknown): NextResponse {
       code: 'INTERNAL_SERVER_ERROR',
       message: 'Something went wrong',
     },
-    {
-      status: 500,
-    }
+    { status: 500 }
   );
 }

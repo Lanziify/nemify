@@ -3,11 +3,28 @@ import { admin, organization } from 'better-auth/plugins';
 import { nextCookies } from 'better-auth/next-js';
 import { db } from './db';
 import { ac } from '@/data/permissions';
+import { transporter } from './email';
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL!,
   emailAndPassword: {
     enabled: true,
+    requireEmailVerification: true,
+  },
+  emailVerification: {
+    autoSignInAfterVerification: true,
+    sendVerificationEmail: async ({ user, url }) => {
+      await transporter.sendMail({
+        from: process.env.ADMIN_FROM!,
+        to: user.email,
+        subject: 'Verify your email',
+        html: `
+          <h1>Verify your account</h1>
+          <p>Click below:</p>
+          <a href="${url}">Verify Email</a>
+        `,
+      });
+    },
   },
   socialProviders: {
     google: {
@@ -27,6 +44,14 @@ export const auth = betterAuth({
         defaultValue: 'system_user',
         input: false,
       },
+    },
+  },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // 1 day - update session if older than this
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // 5 minutes - cache the session lookup for 5 minutes
     },
   },
   plugins: [

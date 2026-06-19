@@ -1,8 +1,7 @@
 import { auth } from '@/utils/auth';
 import { NextRequest, NextResponse } from 'next/server';
-// import {  UnauthorizedError } from './errors/app-error';
 import { apiErrorParser } from './errors/api-error-parser';
-import { APIError } from 'better-auth/api';
+import { BadRequestError } from './errors/app-error';
 
 type Context = { params: Record<string, string | string[]> };
 
@@ -30,7 +29,7 @@ export const apiErrorHandler = (
       }
       return await handler(req, context);
     } catch (error) {
-      return apiErrorParser(error)
+      return apiErrorParser(error);
     }
   };
 };
@@ -41,6 +40,15 @@ export const requireSession: ApiGuard = async (req) => {
   });
 
   if (!session) {
-    throw new APIError('BAD_REQUEST', { message: 'Cannot perform request without active session.'});
+    throw new BadRequestError('Cannot perform request without active session.');
   }
 };
+
+
+export const requiredInternalKey: ApiGuard = async (req) => {
+  const internalKey = req.headers.get('x-internal-secret-key');
+
+  if (internalKey !== process.env.INTERNAL_SECRET){
+    throw new BadRequestError('Cannot perform request. Secret key is required.')
+  }
+}

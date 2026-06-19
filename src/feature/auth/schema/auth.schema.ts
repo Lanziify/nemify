@@ -14,6 +14,8 @@ export type SignUpEmailValues = z.infer<typeof signUpEmailSchema>;
 export const signInEmailPasswordSchema = z.object({
   email: z.email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
+  callbackURL: z.string().optional(),
+  rememberMe: z.boolean().optional(),
 });
 
 export type SignInEmailPasswordValues = z.infer<

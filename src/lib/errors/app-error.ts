@@ -1,26 +1,25 @@
-import { AppErrorCode, getErrorMessage } from './error-codes';
+import { ErrorCode } from './error-codes';
 
-interface ErrorMetadata extends ErrorOptions {
-  details?: Record<string, unknown>;
-}
-
-interface AppErrorOptions extends ErrorMetadata {
-  errorCode: AppErrorCode;
+interface AppErrorOptions extends ErrorOptions {
+  errorCode: ErrorCode;
   statusCode: number;
+  details?: Record<string, unknown>;
 }
 
-export class AppError extends Error {
-  errorCode: AppErrorCode | undefined;
-  statusCode: number | undefined;
-  details?: Record<string, unknown>;
+export abstract class AppError extends Error {
+  readonly errorCode: ErrorCode;
+  readonly statusCode: number;
+  readonly details?: Record<string, unknown>;
 
-  constructor(message: string, options?: AppErrorOptions) {
-    super(message, options);
+  constructor(message: string, options: AppErrorOptions) {
+    super(message, {
+      cause: options.cause,
+    });
 
     this.name = new.target.name;
-    this.errorCode = options?.errorCode;
-    this.statusCode = options?.statusCode;
-    this.details = options?.details;
+    this.errorCode = options.errorCode;
+    this.statusCode = options.statusCode;
+    this.details = options.details;
 
     Object.setPrototypeOf(this, new.target.prototype);
 
@@ -31,41 +30,35 @@ export class AppError extends Error {
 }
 
 export class BadRequestError extends AppError {
-  constructor(message?: string, options?: ErrorMetadata) {
-    super(message ?? getErrorMessage('BAD_REQUEST'), {
+  constructor(
+    message = 'Cannot perform action. Bad request.',
+    options?: {
+      cause?: unknown;
+      details?: Record<string, unknown>;
+    }
+  ) {
+    super(message, {
       errorCode: 'BAD_REQUEST',
       statusCode: 400,
-      ...options,
+      cause: options?.cause instanceof Error ? options.cause : undefined,
+      details: options?.details,
     });
   }
 }
 
-export class UnauthorizedError extends AppError {
-  constructor(message?: string, options?: ErrorMetadata) {
-    super(message ?? getErrorMessage('UNAUTHORIZED_ACCESS'), {
-      errorCode: 'UNAUTHORIZED_ACCESS',
-      statusCode: 401,
-      ...options,
-    });
-  }
-}
-
-export class ForbiddenError extends AppError {
-  constructor(message: string, options?: ErrorMetadata) {
-    super(message ?? getErrorMessage('REQUEST_FORBIDDEN'), {
-      errorCode: 'REQUEST_FORBIDDEN',
-      statusCode: 403,
-      ...options,
-    });
-  }
-}
-
-export class NotFoundError extends AppError {
-  constructor(message?: string, options?: ErrorMetadata) {
-    super(message ?? getErrorMessage('RESOURCE_NOT_FOUND'), {
-      errorCode: 'RESOURCE_NOT_FOUND',
-      statusCode: 404,
-      ...options,
+export class DatabaseError extends AppError {
+  constructor(
+    message = 'Database operation failed',
+    options?: {
+      cause?: unknown;
+      details?: Record<string, unknown>;
+    }
+  ) {
+    super(message, {
+      errorCode: 'DATABASE_ERROR',
+      statusCode: 500,
+      cause: options?.cause instanceof Error ? options.cause : undefined,
+      details: options?.details,
     });
   }
 }
