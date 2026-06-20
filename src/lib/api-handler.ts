@@ -1,7 +1,9 @@
 import { auth } from '@/utils/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { apiErrorParser } from './errors/api-error-parser';
-import { BadRequestError } from './errors/app-error';
+import { BadRequestError, UnAuthorizedError } from './errors/app-error';
+import { PLATFORM_ROLES } from '@/data/roles';
+import { isPlatformInitialized } from '@/utils/platform';
 
 type Context = { params: Record<string, string | string[]> };
 
@@ -34,7 +36,13 @@ export const apiErrorHandler = (
   };
 };
 
-export const requireSession: ApiGuard = async (req) => {
+export const requiredUninitializedPlatform: ApiGuard = async (req) => {
+  if (isPlatformInitialized()) {
+    throw new BadRequestError('Platform is already initialized.');
+  }
+};
+
+export const requiredSession: ApiGuard = async (req) => {
   const session = await auth.api.getSession({
     headers: req.headers,
   });
@@ -44,11 +52,24 @@ export const requireSession: ApiGuard = async (req) => {
   }
 };
 
-
 export const requiredInternalKey: ApiGuard = async (req) => {
   const internalKey = req.headers.get('x-internal-secret-key');
 
-  if (internalKey !== process.env.INTERNAL_SECRET){
-    throw new BadRequestError('Cannot perform request. Secret key is required.')
+  if (internalKey !== process.env.INTERNAL_SECRET) {
+    throw new BadRequestError(
+      'Cannot perform request. Secret key is required.'
+    );
   }
-}
+};
+
+export const requiredSystemAdministration: ApiGuard = async (req) => {
+  const session = await auth.api.getSession({
+    headers: req.headers,
+  });
+
+  if (session?.user.platformRole !== PLATFORM_ROLES.admin) {
+    throw new UnAuthorizedError(
+      'Cannot perform action without system administration role.'
+    );
+  }
+};

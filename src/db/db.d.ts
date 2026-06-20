@@ -71,6 +71,13 @@ export interface Department {
   slug: string | null;
 }
 
+export interface Platform {
+  id: number;
+  initialized: Generated<boolean>;
+  initializedAt: Timestamp | null;
+  initializedBy: string | null;
+}
+
 export interface Session {
   activeCampusId: string | null;
   createdAt: Generated<Timestamp>;
@@ -115,6 +122,7 @@ export interface DB {
   campusMember: CampusMember;
   campusRole: CampusRole;
   department: Department;
+  platform: Platform;
   session: Session;
   user: User;
   verification: Verification;

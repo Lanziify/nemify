@@ -38,6 +38,18 @@ export function apiErrorParser(error: unknown): NextResponse {
     );
   }
 
+  if (error instanceof Error) {
+    return NextResponse.json(
+      {
+        status: 500,
+        code: 'INTERNAL_SERVER_ERROR',
+        message: error.message,
+        details: error.cause,
+      },
+      { status: 500 }
+    );
+  }
+
   return NextResponse.json(
     {
       code: 'INTERNAL_SERVER_ERROR',

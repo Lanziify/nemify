@@ -11,6 +11,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
 import type { Session, User } from 'better-auth/types';
+import { useCampusStore } from '@/store/tenancy-store';
 
 interface TestPageClientProps {
   user: User;
@@ -19,6 +20,7 @@ interface TestPageClientProps {
 
 export function TestPageClient({ user, session }: TestPageClientProps) {
   const { signOut } = useAuthStore();
+  const { campus } = useCampusStore();
   const router = useRouter();
 
   const handleSignOut = async () => {
@@ -71,6 +73,27 @@ export function TestPageClient({ user, session }: TestPageClientProps) {
                 <span className="font-medium">Expires:</span>{' '}
                 {new Date(session.expiresAt).toLocaleString()}
               </p>
+            </div>
+          </div>
+
+          <div className="bg-muted rounded-lg p-4">
+            <h3 className="mb-2 font-semibold">Campus Information</h3>
+            <div className="space-y-1 text-sm">
+              <div className="space-y-1">
+                {campus?.map((c) => (
+                  <div key={c.id}>
+                    <p>
+                      <span>Campus ID: {c.id}</span>
+                    </p>
+                    <p>
+                      <span>Campus Name: {c.name}</span>
+                    </p>
+                    <p>
+                      <span>Slug: {c.slug}</span>
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 

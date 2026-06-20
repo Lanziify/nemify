@@ -5,5 +5,6 @@ import type { Kysely } from 'kysely'
 export async function seed(db: Kysely<DB>): Promise<void> {
 	await db.deleteFrom('session').execute()
 	await db.deleteFrom('account').execute()
+	await db.deleteFrom('campus').execute()
 	await db.deleteFrom('user').execute()
 }

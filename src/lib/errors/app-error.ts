@@ -46,6 +46,23 @@ export class BadRequestError extends AppError {
   }
 }
 
+export class UnAuthorizedError extends AppError {
+  constructor(
+    message = 'Cannot perform action without authorization.',
+    options?: {
+      cause?: unknown;
+      details?: Record<string, unknown>;
+    }
+  ) {
+    super(message, {
+      errorCode: 'UNAUTHORIZED',
+      statusCode: 401,
+      cause: options?.cause instanceof Error ? options.cause : undefined,
+      details: options?.details,
+    });
+  }
+}
+
 export class DatabaseError extends AppError {
   constructor(
     message = 'Database operation failed',

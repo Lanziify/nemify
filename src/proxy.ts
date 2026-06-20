@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { auth } from '@/utils/auth';
+import { isPlatformInitialized, refreshPlatformState } from './utils/platform';
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
@@ -8,6 +9,7 @@ export async function proxy(request: NextRequest) {
   // Define routes before fetching session
   const guestOnlyRoutes = ['/signin'];
   const protectedRoutes = ['/test'];
+  const bootstrapRoutes = ['/setup'];
 
   const isGuestOnlyRoute = guestOnlyRoutes.some((route) =>
     pathname.startsWith(route)
@@ -15,6 +17,21 @@ export async function proxy(request: NextRequest) {
   const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
+  const isBootstrapRoute = bootstrapRoutes.some((route) =>
+    pathname.startsWith(route)
+  );
+
+  if (!isPlatformInitialized() && !isBootstrapRoute) {
+    await refreshPlatformState();
+    return NextResponse.redirect(new URL('/setup', request.url));
+  }
+
+  if (isBootstrapRoute) {
+    if (isPlatformInitialized()) {
+      const url = new URL('/', request.url);
+      return NextResponse.redirect(url);
+    }
+  }
 
   // Only fetch session if we're on a route that needs auth checking
   if (!isGuestOnlyRoute && !isProtectedRoute) {
@@ -30,7 +47,7 @@ export async function proxy(request: NextRequest) {
 
   // Redirect authenticated users away from guest-only routes
   if (isGuestOnlyRoute && isAuthenticated) {
-    const url = new URL('/', request.url);
+    const url = request.headers.get('referer') || new URL('/test', request.url);
     return NextResponse.redirect(url);
   }
 

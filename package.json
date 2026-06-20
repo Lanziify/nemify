@@ -9,7 +9,7 @@
     "lint": "biome check",
     "format": "biome format --write",
     "migrate:better-auth": "bunx --bun @better-auth/cli migrate",
-    "migrate:latest": "bunx --bun kyesly mirgrate:latest",
+    "migrate:latest": "bunx --bun kysely migrate:latest",
     "generate:types": "kysely-codegen --out-file ./src/db/db.d.ts"
   },
   "dependencies": {
