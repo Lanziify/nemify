@@ -39,7 +39,7 @@ export default function RootLayout({
         inter.variable
       )}>
       <body className="flex min-h-full flex-col">
-        <Providers>{children}</Providers>
+          {children}
         <Toaster />
       </body>
     </html>

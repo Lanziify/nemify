@@ -62,6 +62,22 @@ export class UnAuthorizedError extends AppError {
     });
   }
 }
+export class ServerError extends AppError {
+  constructor(
+    message = 'Something went wrong with the server',
+    options?: {
+      cause?: unknown;
+      details?: Record<string, unknown>;
+    }
+  ) {
+    super(message, {
+      errorCode: 'INTERNAL_SERVER_ERROR',
+      statusCode: 500,
+      cause: options?.cause instanceof Error ? options.cause : undefined,
+      details: options?.details,
+    });
+  }
+}
 
 export class DatabaseError extends AppError {
   constructor(

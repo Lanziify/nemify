@@ -1,17 +1,22 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useAuthStore } from '@/store/auth-store';
-// import { useCampusStore } from '@/store/tenancy-store';
+import { AuthType } from '@/utils/auth';
+import React from 'react';
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  const initSession = useAuthStore((state) => state.initSession);
-  // const { initCampus } = useCampusStore();
-  
-  useEffect(() => {
-    initSession();
-    // initCampus();
-  }, [initSession]);
+type ProvidersProps = {
+  sessionData: AuthType['Session'];
+  children: React.ReactNode;
+};
+
+export function Providers({ sessionData, children }: ProvidersProps) {
+  const setAuthSession = useAuthStore((state) => state.setAuthSession);
+
+  React.useEffect(() => {
+    if (!sessionData) return;
+
+    setAuthSession(sessionData);
+  }, [sessionData]);
 
   return <>{children}</>;
 }

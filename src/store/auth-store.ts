@@ -1,20 +1,21 @@
 'use client';
 
 import { create } from 'zustand';
-import type { Session, User } from 'better-auth/types';
 import { SignInEmailPasswordValues } from '@/feature/auth/schema/auth.schema';
 import {
+  getUserCampusById,
   signInUserAccount,
   signOutUserAccount,
 } from '@/feature/auth/actions/auth.action';
-import { authClient } from '@/utils/auth-client';
+import { AuthType } from '@/utils/auth';
 
 interface AuthStore {
-  user: User | null;
-  session: Session | null;
+  user: AuthType['Session']['user'] | null;
+  session: AuthType['Session']['session'] | null;
+  campus: AuthType['ActiveOrganization'] | null;
   isLoading: boolean;
   isInitialized: boolean;
-  initSession: () => Promise<void>;
+  setAuthSession: (session: AuthType['Session']) => Promise<void>;
   signIn: (
     credentials: SignInEmailPasswordValues
   ) => Promise<Awaited<ReturnType<typeof signInUserAccount>>>;
@@ -25,49 +26,59 @@ interface AuthStore {
 export const useAuthStore = create<AuthStore>((set, get) => ({
   user: null,
   session: null,
+  campus: null,
   isLoading: false,
   isInitialized: false,
 
-  initSession: async () => {
-    // Skip if already initialized or currently loading
-    if (get().isInitialized || get().isLoading) {
-      return;
+  setAuthSession: async (data) => {
+    let campusData = null;
+
+    if (data.session.activeOrganizationId) {
+      const { data: campus } = await getUserCampusById(
+        data.session.activeOrganizationId
+      );
+
+      campusData = campus;
     }
 
-    set({ isLoading: true });
-    try {
-      const { data } = await authClient.getSession();
-      set({
-        user: data?.user ?? null,
-        session: data?.session ?? null,
-        isInitialized: true,
-        isLoading: false,
-      });
-    } catch (error) {
-      console.error('Failed to initialize session:', error);
-      set({
-        user: null,
-        session: null,
-        isInitialized: true,
-        isLoading: false,
-      });
-    }
+    set({
+      user: data.user,
+      session: data.session,
+      campus: campusData,
+    });
   },
 
   signIn: async (credentials) => {
     set({ isLoading: true });
+
     const result = await signInUserAccount(credentials);
 
     if (result.data) {
-      // Re-fetch session to get complete data
-      const { data } = await authClient.getSession();
+      let campusData = null;
+
+      if (result.data.session.activeOrganizationId) {
+        const { data: campus } = await getUserCampusById(
+          result.data.session.activeOrganizationId
+        );
+
+        campusData = campus;
+      }
+
       set({
-        user: data?.user ?? null,
-        session: data?.session ?? null,
+        user: result.data.user,
+        session: result.data.session,
+        campus: campusData,
         isLoading: false,
       });
-    } else {
-      set({ isLoading: false });
+    }
+
+    if (result.error) {
+      set({
+        user: null,
+        session: null,
+        campus: null,
+        isLoading: false,
+      });
     }
 
     return result;
@@ -75,10 +86,13 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
 
   signOut: async () => {
     set({ isLoading: true });
+
     await signOutUserAccount();
+
     set({
       user: null,
       session: null,
+      campus: null,
       isLoading: false,
     });
   },

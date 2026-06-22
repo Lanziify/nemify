@@ -106,3 +106,5 @@ export const auth = betterAuth({
     nextCookies(),
   ],
 });
+
+export type AuthType = typeof auth.$Infer

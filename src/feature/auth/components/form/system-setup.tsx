@@ -21,6 +21,7 @@ import { safeCatch } from '@/lib/errors/safe-catch';
 import { createSystemAccount } from '../../services/auth.service';
 import { json } from 'better-auth';
 import { BaseError } from '@/types/api-response';
+import axios from 'axios';
 
 export function UserCreationForm() {
   const router = useRouter();
@@ -43,20 +44,17 @@ export function UserCreationForm() {
     setIsLoading(true);
 
     const result = await safeCatch(async () => {
-      const response = await fetch('/api/system/setup', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(values),
-      });
+      const result = await axios.post<ReturnType<typeof createSystemAccount>>(
+        '/api/system/setup',
+        { ...values },
+        {
+          headers: {
+            'x-internal-secret-key': process.env.INTERNAL_SECRET_KEY!,
+          },
+        }
+      );
 
-      if (!response.ok) {
-        const error = (await response.json()) as BaseError;
-        throw new Error(error.message);
-      }
-
-      return (await response.json()) as ReturnType<typeof createSystemAccount>;
+      return result.data;
     });
 
     setIsLoading(false);
