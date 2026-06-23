@@ -10,7 +10,8 @@
     "format": "biome format --write",
     "migrate:better-auth": "bunx --bun @better-auth/cli migrate",
     "migrate:latest": "bunx --bun kysely migrate:latest",
-    "generate:types": "kysely-codegen --out-file ./src/db/db.d.ts"
+    "generate:types": "kysely-codegen --out-file ./src/db/db.d.ts",
+    "db:clean": "tsx --env-file=.env ./scripts/clean-db.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.5.0",
@@ -21,6 +22,7 @@
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
     "date-fns": "^4.4.0",
+    "dotenv": "^17.4.2",
     "embla-carousel-react": "^8.6.0",
     "input-otp": "^1.4.2",
     "kysely": "^0.29.2",
@@ -58,6 +60,7 @@
     "prettier": "^3.8.4",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "tailwindcss": "^4",
+    "tsx": "^4.22.4",
     "typescript": "^5"
   },
   "ignoreScripts": [

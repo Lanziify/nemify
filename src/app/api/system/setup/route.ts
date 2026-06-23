@@ -1,6 +1,7 @@
+import { PLATFORM_ROLES } from '@/data/roles';
 import { updatePlatformInitState } from '@/feature/auth/repositories/auth.repository';
 import { signUpEmailSchema } from '@/feature/auth/schema/auth.schema';
-import { createSystemAdminAccount } from '@/feature/auth/services/auth.service';
+import { createSystemAccount } from '@/feature/auth/services/auth.service';
 import {
   apiErrorHandler,
   requiredUninitializedPlatform,
@@ -14,7 +15,10 @@ export const POST = apiErrorHandler(
 
     const values = signUpEmailSchema.parse(body);
 
-    const admin = await createSystemAdminAccount(values);
+    const admin = await createSystemAccount({
+      values,
+      platformRole: PLATFORM_ROLES.admin,
+    });
 
     await updatePlatformInitState(admin.user.id);
 

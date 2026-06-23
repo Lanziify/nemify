@@ -19,8 +19,6 @@ import { signUpEmailSchema, SignUpEmailValues } from '../../schema/auth.schema';
 import { toast } from 'sonner';
 import { safeCatch } from '@/lib/errors/safe-catch';
 import { createSystemAccount } from '../../services/auth.service';
-import { json } from 'better-auth';
-import { BaseError } from '@/types/api-response';
 import axios from 'axios';
 
 export function UserCreationForm() {
@@ -64,7 +62,9 @@ export function UserCreationForm() {
       return;
     }
 
-    router.push('/test');
+    toast.success('System account created successfully!');
+
+    router.push('/signin');
   };
 
   return (

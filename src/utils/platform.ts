@@ -19,5 +19,7 @@ export function setPlatformInitialized(value: boolean) {
 export async function refreshPlatformState() {
   const result = await getPlatformInitState();
 
-  initialized = result?.initialized;
+  initialized = result?.initialized ?? false;
+
+  return initialized;
 }

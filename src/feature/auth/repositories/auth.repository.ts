@@ -1,4 +1,4 @@
-import { PLATFORM_ROLES, PlatformRole } from '@/data/roles';
+import { PlatformRole } from '@/data/roles';
 import { db } from '@/utils/db';
 import { sql } from 'kysely';
 
@@ -10,14 +10,6 @@ export const findUserByEmail = (email: string) => {
     .executeTakeFirst();
 };
 
-export const assignSystemAdminRole = (id: string) => {
-  return db
-    .updateTable('user')
-    .set({ platformRole: PLATFORM_ROLES.admin })
-    .where('id', '=', id)
-    .executeTakeFirstOrThrow();
-};
-
 export const setUserPlatformRole = (id: string, role: PlatformRole) => {
   return db
     .updateTable('user')
@@ -26,6 +18,9 @@ export const setUserPlatformRole = (id: string, role: PlatformRole) => {
     .executeTakeFirstOrThrow();
 };
 
+/**
+ * TODO: Maybe separate these functions to another feature folder
+ */
 export const getPlatformInitState = () => {
   return db
     .selectFrom('platform')

@@ -22,8 +22,13 @@ export async function proxy(request: NextRequest) {
   );
 
   if (!isPlatformInitialized() && !isBootstrapRoute) {
-    await refreshPlatformState();
-    return NextResponse.redirect(new URL('/setup', request.url));
+    // In-memory state isn't shared with the route-handler bundle, so re-read
+    // the authoritative value from the DB before deciding to redirect.
+    const initialized = await refreshPlatformState();
+
+    if (!initialized) {
+      return NextResponse.redirect(new URL('/setup', request.url));
+    }
   }
 
   if (isBootstrapRoute) {
@@ -47,7 +52,7 @@ export async function proxy(request: NextRequest) {
 
   // Redirect authenticated users away from guest-only routes
   if (isGuestOnlyRoute && isAuthenticated) {
-    const url = request.headers.get('referer') || new URL('/test', request.url);
+    const url = new URL('/test', request.url);
     return NextResponse.redirect(url);
   }
 
