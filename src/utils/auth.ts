@@ -4,7 +4,7 @@ import { nextCookies } from 'better-auth/next-js';
 import { db } from './db';
 import { ac } from '@/data/permissions';
 import { transporter } from './email';
-import { checkSystemUserRole } from '@/feature/multi-tenancy/repositories/tenancy.repository';
+import { checkSystemAdministrationRole } from '@/feature/multi-tenancy/repositories/tenancy.repository';
 import { safeCatch } from '@/lib/errors/safe-catch';
 import { actionErrorParser } from '@/lib/errors/action-error-parser';
 
@@ -95,7 +95,7 @@ export const auth = betterAuth({
       allowUserToCreateOrganization: async (user) => {
         const { data } = await safeCatch(
           async () => {
-            return await checkSystemUserRole(user.id);
+            return await checkSystemAdministrationRole(user.id);
           },
           { parser: actionErrorParser }
         );

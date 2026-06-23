@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
+import { CreateCampusButton } from '@/feature/multi-tenancy/components';
 
 export default function TestPage() {
   const { session, user, campus, signOut } = useAuthStore();
@@ -50,7 +51,7 @@ export default function TestPage() {
                   )}
                 </p>
                 <p>
-                  <span className="font-medium">Platform Role:</span> {' '}
+                  <span className="font-medium">Platform Role:</span>{' '}
                   {user.platformRole}
                 </p>
               </div>
@@ -90,6 +91,11 @@ export default function TestPage() {
               </div>
             </div>
           )}
+
+          {/* RBAC: System Admin Actions */}
+          <div className="flex flex-wrap gap-2">
+            <CreateCampusButton />
+          </div>
 
           <Button onClick={handleSignOut} variant="destructive">
             Sign Out

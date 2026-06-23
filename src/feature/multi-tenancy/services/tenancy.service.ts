@@ -29,6 +29,8 @@ export const getUserCampusOrganization = async () => {
   const campus = await auth.api.getFullOrganization({
     headers: await headers(),
   });
+
+  return campus;
 };
 
 export type CreateOrganizationBody = NonNullable<

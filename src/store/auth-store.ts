@@ -8,6 +8,7 @@ import {
   signOutUserAccount,
 } from '@/feature/auth/actions/auth.action';
 import { AuthType } from '@/utils/auth';
+import { authClient } from '@/utils/auth-client';
 
 interface AuthStore {
   user: AuthType['Session']['user'] | null;
@@ -34,9 +35,16 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     let campusData = null;
 
     if (data.session.activeOrganizationId) {
-      const { data: campus } = await getUserCampusById(
-        data.session.activeOrganizationId
-      );
+      const { data: campus, error } =
+        await authClient.organization.getFullOrganization({
+          query: {
+            organizationId: data.session.activeOrganizationId,
+          },
+        });
+
+      if (error) {
+        console.error('Failed to fetch campus:', error);
+      }
 
       campusData = campus;
     }
@@ -57,11 +65,18 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       let campusData = null;
 
       if (result.data.session.activeOrganizationId) {
-        const { data: campus } = await getUserCampusById(
-          result.data.session.activeOrganizationId
-        );
+        const { data, error } =
+          await authClient.organization.getFullOrganization({
+            query: {
+              organizationId: result.data.session.activeOrganizationId,
+            },
+          });
 
-        campusData = campus;
+        if (error) {
+          console.error('Failed to fetch campus:', error);
+        }
+
+        campusData = data;
       }
 
       set({
