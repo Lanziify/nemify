@@ -17,6 +17,7 @@ interface AuthStore {
   isLoading: boolean;
   isInitialized: boolean;
   setAuthSession: (session: AuthType['Session']) => Promise<void>;
+  updateAuthSession: () => Promise<void>;
   signIn: (
     credentials: SignInEmailPasswordValues
   ) => Promise<Awaited<ReturnType<typeof signInUserAccount>>>;
@@ -54,6 +55,33 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       session: data.session,
       campus: campusData,
     });
+  },
+
+  updateAuthSession: async () => {
+    const { data } = await authClient.getSession();
+
+    let campusData = null;
+
+    if (data && data.session.activeOrganizationId) {
+      const { data: campus, error } =
+        await authClient.organization.getFullOrganization({
+          query: {
+            organizationId: data.session.activeOrganizationId,
+          },
+        });
+
+      if (error) {
+        console.error('Failed to fetch campus:', error);
+      }
+
+      campusData = campus;
+
+      set({
+        user: data.user,
+        session: data.session,
+        campus: campusData,
+      });
+    }
   },
 
   signIn: async (credentials) => {

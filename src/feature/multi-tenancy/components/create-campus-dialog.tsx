@@ -19,7 +19,6 @@ import { Label } from '@/components/ui/label';
 import { createOrganizationSchema } from '../schema/tenancy.schema';
 import { createCampus } from '../actions/tenancy.action';
 import { useAuthStore } from '@/store/auth-store';
-import { getAuthSession } from '@/feature/auth/actions/auth.action';
 import type { z } from 'zod';
 
 type CreateCampusFormValues = z.infer<typeof createOrganizationSchema>;
@@ -35,7 +34,7 @@ export function CreateCampusDialog({
 }: CreateCampusDialogProps) {
   const [isLoading, setIsLoading] = React.useState(false);
   const router = useRouter();
-  const { setAuthSession } = useAuthStore();
+  const { updateAuthSession } = useAuthStore();
 
   const {
     register,
@@ -64,11 +63,7 @@ export function CreateCampusDialog({
 
     toast.success('Campus created successfully');
 
-    // Refresh the session to get the new active campus
-    // const sessionData = await getAuthSession();
-    // if (sessionData) {
-    //   await setAuthSession(sessionData);
-    // }
+    await updateAuthSession()
 
     setIsLoading(false);
     reset();

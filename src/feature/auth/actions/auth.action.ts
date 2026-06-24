@@ -67,9 +67,3 @@ export const getUserCampusById = async (id: string) => {
     { parser: actionErrorParser }
   );
 };
-
-export const getAuthSession = async () => {
-  return await auth.api.getSession({
-    headers: await headers(),
-  });
-};

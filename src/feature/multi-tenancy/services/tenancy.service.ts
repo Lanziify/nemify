@@ -5,24 +5,32 @@ import { headers } from 'next/headers';
 export const createCampusOrganization = async (
   values: CreateOrganizationBody
 ) => {
-  const { status: isSlugAvalilable } = await auth.api.checkOrganizationSlug({
+  const { status: isSlugAvailable } = await auth.api.checkOrganizationSlug({
     body: {
       slug: values.slug,
     },
   });
 
-  if (!isSlugAvalilable) {
+  if (!isSlugAvailable) {
     throw new APIError('BAD_REQUEST', {
       message: 'Campus slug is already taken. Please choose another one.',
     });
   }
 
-  const data = await auth.api.createOrganization({
+  const campus = await auth.api.createOrganization({
     body: values,
     headers: await headers(),
   });
 
-  return data;
+  const activeCampus = await auth.api.setActiveOrganization({
+    body: {
+      organizationId: campus.id,
+      organizationSlug: campus.slug,
+    },
+    headers: await headers(),
+  });
+
+  return activeCampus;
 };
 
 export const getUserCampusOrganization = async () => {

@@ -1,7 +1,8 @@
 import { Providers } from '@/components/provider/auth-provider';
-import { getAuthSession } from '@/feature/auth/actions/auth.action';
 import React from 'react';
 import { redirect } from 'next/navigation';
+import { authClient } from '@/utils/auth-client';
+import { toast } from 'sonner';
 
 type ProtectedPagesLayoutProps = {
   children: React.ReactNode;
@@ -10,9 +11,10 @@ type ProtectedPagesLayoutProps = {
 export default async function ProtectedPagesLayout({
   children,
 }: ProtectedPagesLayoutProps) {
-  const data = await getAuthSession();
+  const { data, error } = await authClient.getSession();
 
-  if (!data?.session) {
+  if (error || !data) {
+    // toast.error(error ? error.message : "Something wen't wrong");
     redirect('/signin');
   }
 
