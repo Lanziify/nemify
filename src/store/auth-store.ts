@@ -3,7 +3,6 @@
 import { create } from 'zustand';
 import { SignInEmailPasswordValues } from '@/feature/auth/schema/auth.schema';
 import {
-  getUserCampusById,
   signInUserAccount,
   signOutUserAccount,
 } from '@/feature/auth/actions/auth.action';
@@ -22,7 +21,6 @@ interface AuthStore {
     credentials: SignInEmailPasswordValues
   ) => Promise<Awaited<ReturnType<typeof signInUserAccount>>>;
   signOut: () => Promise<void>;
-  setLoading: (loading: boolean) => void;
 }
 
 export const useAuthStore = create<AuthStore>((set, get) => ({
@@ -138,9 +136,5 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       campus: null,
       isLoading: false,
     });
-  },
-
-  setLoading: (loading: boolean) => {
-    set({ isLoading: loading });
   },
 }));

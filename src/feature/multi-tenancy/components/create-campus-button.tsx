@@ -4,8 +4,9 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { useAuthStore } from '@/store/auth-store';
 import { CreateCampusDialog } from './create-campus-dialog';
+import { cn } from '@/lib/utils';
 
-export function CreateCampusButton() {
+export function CreateCampusButton(props: React.ComponentProps<'button'>) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const { user } = useAuthStore();
 
@@ -16,7 +17,7 @@ export function CreateCampusButton() {
 
   return (
     <>
-      <Button onClick={() => setIsDialogOpen(true)} size="sm">
+      <Button onClick={() => setIsDialogOpen(true)} size="sm" {...props}>
         Create Campus
       </Button>
       <CreateCampusDialog open={isDialogOpen} onOpenChange={setIsDialogOpen} />

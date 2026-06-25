@@ -16,8 +16,8 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createOrganizationSchema } from '../schema/tenancy.schema';
-import { createCampus } from '../actions/tenancy.action';
+import { createOrganizationSchema } from '../schema/campus.schema';
+import { createCampus } from '../actions/campus.action';
 import { useAuthStore } from '@/store/auth-store';
 import type { z } from 'zod';
 
@@ -63,7 +63,7 @@ export function CreateCampusDialog({
 
     toast.success('Campus created successfully');
 
-    await updateAuthSession()
+    await updateAuthSession();
 
     setIsLoading(false);
     reset();

@@ -4,12 +4,12 @@ import { useAuthStore } from '@/store/auth-store';
 import { AuthType } from '@/utils/auth';
 import React from 'react';
 
-type ProvidersProps = {
+type AuthProvidersProps = {
   sessionData: AuthType['Session'];
   children: React.ReactNode;
 };
 
-export function Providers({ sessionData, children }: ProvidersProps) {
+export function AuthProvider({ sessionData, children }: AuthProvidersProps) {
   const setAuthSession = useAuthStore((state) => state.setAuthSession);
 
   React.useEffect(() => {

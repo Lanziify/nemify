@@ -33,6 +33,9 @@ export const auth = betterAuth({
     google: {
       clientId: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+      authorizationParams: {
+        prompt: 'select_account',
+      },
     },
   },
   database: {
@@ -107,4 +110,4 @@ export const auth = betterAuth({
   ],
 });
 
-export type AuthType = typeof auth.$Infer
+export type AuthType = typeof auth.$Infer;

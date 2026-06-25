@@ -54,16 +54,27 @@ export const signOutUserAccount = async () => {
   );
 };
 
-export const getUserCampusById = async (id: string) => {
+// export const getUserCampusById = async (id: string) => {
+//   return await safeCatch(
+//     async () => {
+//       return await auth.api.getFullOrganization({
+//         query: {
+//           organizationId: id,
+//         },
+//         headers: await headers(),
+//       });
+//     },
+//     { parser: actionErrorParser }
+//   );
+// };
+
+export const getSessionData = async () => {
   return await safeCatch(
     async () => {
-      return await auth.api.getFullOrganization({
-        query: {
-          organizationId: id,
-        },
-        headers: await headers(),
-      });
+      return await auth.api.getSession({ headers: await headers() });
     },
-    { parser: actionErrorParser }
+    {
+      parser: actionErrorParser,
+    }
   );
 };

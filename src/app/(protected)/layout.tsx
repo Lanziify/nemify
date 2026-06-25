@@ -1,8 +1,9 @@
-import { Providers } from '@/components/provider/auth-provider';
+import { AuthProvider } from '@/components/provider/auth-provider';
 import React from 'react';
 import { redirect } from 'next/navigation';
-import { authClient } from '@/utils/auth-client';
 import { toast } from 'sonner';
+import { getSessionData } from '@/feature/auth/actions/auth.action';
+import { DynamicTableWrapper } from '@/components/custom/dynamic-data-table/table';
 
 type ProtectedPagesLayoutProps = {
   children: React.ReactNode;
@@ -11,12 +12,12 @@ type ProtectedPagesLayoutProps = {
 export default async function ProtectedPagesLayout({
   children,
 }: ProtectedPagesLayoutProps) {
-  const { data, error } = await authClient.getSession();
+  const { data, error } = await getSessionData();
 
-  if (error || !data) {
-    // toast.error(error ? error.message : "Something wen't wrong");
+  if (!data || error) {
+    // toast.error(error?.message ?? "Something wen't wrong");
     redirect('/signin');
   }
 
-  return <Providers sessionData={data}>{children}</Providers>;
+  return <AuthProvider sessionData={data}>{children}</AuthProvider>;
 }

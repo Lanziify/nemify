@@ -1,5 +1,5 @@
 import z from 'zod';
-import { CreateOrganizationBody } from '../services/tenancy.service';
+import { CreateOrganizationBody } from '../services/campus.service';
 
 export const createOrganizationSchema = z.object({
   name: z
