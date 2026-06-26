@@ -13,6 +13,14 @@ export class CampusRepository {
       .execute();
   }
 
+  async findCampusById(id: string) {
+    return db
+      .selectFrom('campus')
+      .selectAll()
+      .where('id', '=', id)
+      .executeTakeFirstOrThrow();
+  }
+
   async findCampusBySlug(slug: string) {
     return db
       .selectFrom('campus')
@@ -21,3 +29,5 @@ export class CampusRepository {
       .executeTakeFirstOrThrow();
   }
 }
+
+export class CampusPolicy {}

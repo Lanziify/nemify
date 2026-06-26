@@ -1,5 +1,8 @@
 import z from 'zod';
-import { CreateOrganizationBody } from '../services/campus.service';
+import {
+  CreateCampusRoleBody,
+  CreateOrganizationBody,
+} from '../services/campus.service';
 
 export const createOrganizationSchema = z.object({
   name: z
@@ -17,3 +20,10 @@ export const createOrganizationSchema = z.object({
   metadata: z.record(z.string(), z.any()).optional(),
   keepCurrentActiveOrganization: z.boolean().optional(),
 }) satisfies z.ZodType<CreateOrganizationBody>;
+
+export const createCampusRoleSchema = z.object({
+  organizationId: z.string(),
+  role: z.string(),
+  permission: z.record(z.string(), z.array(z.string())),
+  additionalFields: z.object().optional(),
+}) satisfies z.ZodType<CreateCampusRoleBody>;

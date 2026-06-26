@@ -3,6 +3,7 @@ import { createAccessControl } from 'better-auth/plugins';
 export const statement = {
   system: ['settings', 'audit'],
   campus: ['create', 'update', 'archive'],
+  member: ['invite', 'remove'],
 } as const;
 
 export const ac = createAccessControl(statement);
