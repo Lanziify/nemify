@@ -18,7 +18,7 @@ import {
 import { signUpEmailSchema, SignUpEmailValues } from '../../schema/auth.schema';
 import { toast } from 'sonner';
 import { safeCatch } from '@/lib/errors/safe-catch';
-import { createSystemAccount } from '../../services/auth.service';
+import { AuthService, createSystemAccount } from '../../services/auth.service';
 import axios from 'axios';
 
 export function UserCreationForm() {
@@ -42,7 +42,9 @@ export function UserCreationForm() {
     setIsLoading(true);
 
     const result = await safeCatch(async () => {
-      const result = await axios.post<ReturnType<typeof createSystemAccount>>(
+      const result = await axios.post<
+        ReturnType<AuthService['createFirstAdmin']>
+      >(
         '/api/system/setup',
         { ...values },
         {

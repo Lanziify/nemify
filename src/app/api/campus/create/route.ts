@@ -7,8 +7,16 @@ import { NextRequest, NextResponse } from 'next/server';
 const campusRepository = new CampusRepository();
 const campusService = new CampusService(campusRepository);
 
-export const GET = apiErrorHandler(async (req: NextRequest) => {
-  const query = await campusService.getAllCampus();
+export const POST = apiErrorHandler(
+  async (req: NextRequest) => {
+    const body = await req.json();
+    const values = createCampusSchema.parse(body);
 
-  return NextResponse.json(query, { status: 200 });
-});
+    const result = await campusService.createCampus(values);
+
+    return NextResponse.json(result, { status: 200 });
+  },
+  {
+    guards: [requiredSession],
+  }
+);

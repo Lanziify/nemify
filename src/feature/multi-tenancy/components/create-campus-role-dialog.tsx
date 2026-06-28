@@ -17,11 +17,10 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createCampusRoleSchema } from '../schema/campus.schema';
-import { createCampus } from '../actions/campus.action';
-import { useAuthStore } from '@/store/auth-store';
-import type { z } from 'zod';
-import { POLICIES } from '@/lib/auth/policies';
+import {
+  BaseCampusRoleFormValues,
+  baseCampusRoleSchema,
+} from '../schema/campus.schema';
 import {
   Field,
   FieldContent,
@@ -29,69 +28,113 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { Switch } from '@/components/ui/switch';
-
-type CreateCampusRoleFormValues = z.infer<typeof createCampusRoleSchema>;
+import { useMutation } from '@tanstack/react-query';
+import { queryClient } from '@/utils/query-client';
+import axios from 'axios';
+import { CreateCampusRoleServiceResult } from '../services/campus.service';
+import { CampusSchemaAdapter } from '../utils/schema-adapter';
+import { CampusRoleRow } from '../data/role-columns';
+import { CAMPUS_POLICIES } from '@/lib/auth/policies.campus';
 
 interface CreateCampusRoleDialogProps {
   campusId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  editValues?: CampusRoleRow;
 }
+
+type DialogMode = 'Default' | 'Editing' | 'Loading';
 
 export function CreateCampusRoleDialog({
   campusId,
   open,
   onOpenChange,
+  editValues,
 }: CreateCampusRoleDialogProps) {
-  const [isLoading, setIsLoading] = React.useState(false);
   const router = useRouter();
-  const { updateAuthSession } = useAuthStore();
+
+  const defaultFormValues: BaseCampusRoleFormValues = {
+    role: '',
+    permission: {},
+  };
+
+  const createNewCampusRoleMutation = useMutation({
+    mutationKey: ['createCampusRole'],
+    mutationFn: async (data: BaseCampusRoleFormValues) => {
+      const transformer = new CampusSchemaAdapter(data);
+      const isEditing = !!editValues;
+
+      if (isEditing) {
+        return (
+          await axios.patch<CreateCampusRoleServiceResult>(
+            `/api/campus/${campusId}/roles`,
+            transformer.transformBaseValuesToUpdate(editValues)
+          )
+        ).data;
+      }
+
+      return (
+        await axios.post<CreateCampusRoleServiceResult>(
+          `/api/campus/${campusId}/roles`,
+          transformer.transformBaseValuesToCreate({
+            organizationId: campusId,
+          })
+        )
+      ).data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['campusRole'],
+      });
+    },
+  });
 
   const {
-    control,
     register,
     handleSubmit,
     setValue,
     watch,
     formState: { errors },
     reset,
-  } = useForm<CreateCampusRoleFormValues>({
-    resolver: zodResolver(createCampusRoleSchema),
-    defaultValues: {
-      organizationId: campusId,
-      role: '',
-      permission: {},
-    },
+  } = useForm<BaseCampusRoleFormValues>({
+    resolver: zodResolver(baseCampusRoleSchema),
+    defaultValues: defaultFormValues,
   });
 
-  const onSubmit = async (data: CreateCampusRoleFormValues) => {
-    console.log(data);
+  const onSubmit = async (data: BaseCampusRoleFormValues) => {
+    await createNewCampusRoleMutation.mutateAsync(data);
 
-    // setIsLoading(true);
+    toast.success('Role created successfully');
 
-    // const result = await createCampus(data);
-
-    // if (result.error) {
-    //   toast.error(result.error.message);
-    //   setIsLoading(false);
-    //   return;
-    // }
-
-    // toast.success('Role created successfully');
-
-    // await updateAuthSession();
-
-    // setIsLoading(false);
-    // reset();
-    // onOpenChange(false);
-    // router.refresh();
+    reset();
+    onOpenChange(false);
+    router.refresh();
   };
+
+  const dialogMode: DialogMode = createNewCampusRoleMutation.isPending
+    ? 'Loading'
+    : editValues
+      ? 'Editing'
+      : 'Default';
+
+  React.useEffect(() => {
+    reset({
+      ...defaultFormValues,
+      ...editValues,
+      permission: {
+        ...defaultFormValues.permission,
+        ...editValues?.permission,
+      },
+    });
+  }, [editValues, campusId, reset]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-106.25">
         <DialogHeader>
-          <DialogTitle>Create New Role</DialogTitle>
+          <DialogTitle>
+            {dialogMode === 'Editing' ? 'Edit Role' : 'Create New Role'}
+          </DialogTitle>
           <DialogDescription>
             Create a new campus role. Fill in the details below.
           </DialogDescription>
@@ -112,7 +155,7 @@ export function CreateCampusRoleDialog({
               )}
             </div>
 
-            {Object.entries(POLICIES).map(([resourceKey, policy]) => {
+            {Object.entries(CAMPUS_POLICIES).map(([resourceKey, policy]) => {
               return (
                 <div className="not-first-of-type:mb-8" key={resourceKey}>
                   <h2 className="font-bold">{policy.label}</h2>
@@ -143,6 +186,11 @@ export function CreateCampusRoleDialog({
                               id={String(action.label)
                                 .replaceAll(' ', '-')
                                 .toLocaleLowerCase()}
+                              checked={
+                                watch('permission')?.[resourceKey]?.includes(
+                                  actionKey
+                                ) ?? false
+                              }
                               onCheckedChange={(checked) => {
                                 const current = watch('permission');
 
@@ -173,6 +221,7 @@ export function CreateCampusRoleDialog({
 
                                 setValue('permission', nextPermission);
                               }}
+                              disabled={dialogMode === 'Loading'}
                             />
                           </Field>
                         );
@@ -190,14 +239,19 @@ export function CreateCampusRoleDialog({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={isLoading}>
+                disabled={createNewCampusRoleMutation.isPending}>
                 Cancel
               </Button>
               <Button
                 type="submit"
-                disabled={isLoading}
-                form="campus-role-form">
-                {isLoading ? 'Creating...' : 'Create Role'}
+                disabled={createNewCampusRoleMutation.isPending}>
+                {createNewCampusRoleMutation.isPending
+                  ? editValues
+                    ? 'Saving...'
+                    : 'Creating...'
+                  : editValues
+                    ? 'Save Changes'
+                    : 'Create Role'}
               </Button>
             </div>
           </DialogFooter>

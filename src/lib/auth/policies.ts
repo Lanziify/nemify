@@ -1,80 +1,47 @@
-type Policy = {
+export type Policy = {
   [key: string]: PolicyFields;
 };
 
-type PolicyFields = {
+export type PolicyFields = {
   label: string;
   description: string;
   actions: Record<string, PolicyActionMeta>;
 };
 
-type PolicyActionMeta = {
+export type PolicyActionMeta = {
   label: string;
   description: string;
 };
 
-export const POLICIES: Policy = {
-  campus: {
-    label: 'Campus Management',
-    description: 'Manage campuses inside organization',
+export type PolicyPath<
+  T extends Policy,
+  PolicyKey extends Extract<keyof T, string> = Extract<keyof T, string>,
+> =
+  | PolicyKey
+  | {
+      [K in PolicyKey]: `${K}.${Extract<keyof T[K]['actions'], string>}`;
+    }[PolicyKey];
 
-    actions: {
-      create: {
-        label: 'Create Campus',
-        description: 'Can create new campuses',
-      },
+export const getPolicyStatement = <T extends Policy>(policies: T) => {
+  return Object.entries(policies).reduce(
+    (acc, [key, value]) => {
+      acc[key as keyof T] = Object.keys(value.actions);
 
-      read: {
-        label: 'View Campus',
-        description: 'Can view campus information',
-      },
-
-      update: {
-        label: 'Update Campus',
-        description: 'Can edit campus details',
-      },
-
-      delete: {
-        label: 'Delete Campus',
-        description: 'Can permanently delete campus',
-      },
+      return acc;
     },
-  },
-
-  member: {
-    label: 'Member Management',
-    description: 'Manage organization members',
-
-    actions: {
-      invite: {
-        label: 'Invite Members',
-        description: 'Can invite users to organization',
-      },
-
-      remove: {
-        label: 'Remove Members',
-        description: 'Can remove organization members',
-      },
-
-      updateRole: {
-        label: 'Change Role',
-        description: 'Can change member roles',
-      },
-    },
-  },
+    {} as Record<keyof T, string[]>
+  );
 };
 
-type PermissionMap = Record<string, string[]>;
+export const getPolicyDescription = <T extends Policy, P extends PolicyPath<T>>(
+  policies: T,
+  path: P
+) => {
+  const [policyKey, actionKey] = path.split('.');
 
-export function toBetterAuthPermissions(selected: string[]): PermissionMap {
-  const permissions: PermissionMap = {};
+  const policy = policies[policyKey];
 
-  for (const item of selected) {
-    const [resource, action] = item.split('.');
-
-    permissions[resource] ??= [];
-    permissions[resource].push(action);
-  }
-
-  return permissions;
-}
+  return actionKey
+    ? policy?.actions?.[actionKey]?.description
+    : policy?.description;
+};

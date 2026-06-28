@@ -51,7 +51,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
     set({
       user: data.user,
       session: data.session,
-      campus: campusData,
+      // campus: campusData,
     });
   },
 
@@ -77,7 +77,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({
         user: data.user,
         session: data.session,
-        campus: campusData,
+        // campus: campusData,
       });
     }
   },
@@ -108,7 +108,7 @@ export const useAuthStore = create<AuthStore>((set, get) => ({
       set({
         user: result.data.user,
         session: result.data.session,
-        campus: campusData,
+        // campus: campusData,
         isLoading: false,
       });
     }

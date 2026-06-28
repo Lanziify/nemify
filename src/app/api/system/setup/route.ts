@@ -1,7 +1,9 @@
-import { PLATFORM_ROLES } from '@/data/roles';
-import { updatePlatformInitState } from '@/feature/auth/repositories/auth.repository';
+import {
+  AuthRepository,
+  updatePlatformInitState,
+} from '@/feature/auth/repositories/auth.repository';
 import { signUpEmailSchema } from '@/feature/auth/schema/auth.schema';
-import { createSystemAccount } from '@/feature/auth/services/auth.service';
+import { AuthService } from '@/feature/auth/services/auth.service';
 import {
   apiErrorHandler,
   requiredUninitializedPlatform,
@@ -9,22 +11,22 @@ import {
 import { setPlatformInitialized } from '@/utils/platform';
 import { NextRequest, NextResponse } from 'next/server';
 
+const authRepository = new AuthRepository();
+const authService = new AuthService(authRepository);
+
 export const POST = apiErrorHandler(
   async (req: NextRequest) => {
     const body = await req.json();
 
-    const values = signUpEmailSchema.parse(body);
+    const parsedValues = signUpEmailSchema.parse(body);
 
-    const admin = await createSystemAccount({
-      values,
-      platformRole: PLATFORM_ROLES.admin,
-    });
+    const response = await authService.createFirstAdmin(parsedValues);
 
-    await updatePlatformInitState(admin.user.id);
+    await updatePlatformInitState(response.user.id);
 
     setPlatformInitialized(true);
 
-    return NextResponse.json(admin, { status: 200 });
+    return NextResponse.json(response, { status: 200 });
   },
   { guards: [requiredUninitializedPlatform] }
 );

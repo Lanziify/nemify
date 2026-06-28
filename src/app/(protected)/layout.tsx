@@ -6,10 +6,12 @@ import { getSessionData } from '@/feature/auth/actions/auth.action';
 import { DynamicTableWrapper } from '@/components/custom/dynamic-data-table/table';
 
 type ProtectedPagesLayoutProps = {
+  breadcrumbs: React.ReactNode;
   children: React.ReactNode;
 };
 
 export default async function ProtectedPagesLayout({
+  breadcrumbs,
   children,
 }: ProtectedPagesLayoutProps) {
   const { data, error } = await getSessionData();
@@ -19,5 +21,12 @@ export default async function ProtectedPagesLayout({
     redirect('/signin');
   }
 
-  return <AuthProvider sessionData={data}>{children}</AuthProvider>;
+  return (
+    <AuthProvider sessionData={data}>
+      <div className="bg-muted/40 flex min-h-screen flex-col items-center justify-center p-4">
+        {breadcrumbs}
+        {children}
+      </div>
+    </AuthProvider>
+  );
 }

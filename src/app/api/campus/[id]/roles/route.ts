@@ -1,5 +1,8 @@
 import { CampusRepository } from '@/feature/multi-tenancy/repositories/campus.repository';
-import { createCampusRoleSchema } from '@/feature/multi-tenancy/schema/campus.schema';
+import {
+  createCampusRoleSchema,
+  updateCampusRoleSchema,
+} from '@/feature/multi-tenancy/schema/campus.schema';
 import { CampusService } from '@/feature/multi-tenancy/services/campus.service';
 import { apiErrorHandler } from '@/lib/api-handler';
 import { DatabaseError, ServerError } from '@/lib/errors/app-error';
@@ -42,7 +45,17 @@ export const POST = apiErrorHandler(
 
     const result = await campusService.createCampusRole(parsedValues);
 
-    console.log(result);
+    return NextResponse.json(result, { status: 200 });
+  },
+  { guards: [] }
+);
+
+export const PATCH = apiErrorHandler(
+  async (req) => {
+    const body = await req.json();
+    const parsedValues = updateCampusRoleSchema.parse(body);
+
+    const result = await campusService.updateCampusRole(parsedValues);
 
     return NextResponse.json(result, { status: 200 });
   },

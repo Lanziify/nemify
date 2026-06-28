@@ -16,12 +16,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { createOrganizationSchema } from '../schema/campus.schema';
-import { createCampus } from '../actions/campus.action';
+import {
+  CreateCampusFormValues,
+  createCampusSchema,
+} from '../schema/campus.schema';
 import { useAuthStore } from '@/store/auth-store';
-import type { z } from 'zod';
-
-type CreateCampusFormValues = z.infer<typeof createOrganizationSchema>;
+import { useMutation } from '@tanstack/react-query';
+import { queryClient } from '@/utils/query-client';
+import axios from 'axios';
+import { CreateCampusServiceResponse } from '../services/campus.service';
 
 interface CreateCampusDialogProps {
   open: boolean;
@@ -42,7 +45,7 @@ export function CreateCampusDialog({
     formState: { errors },
     reset,
   } = useForm<CreateCampusFormValues>({
-    resolver: zodResolver(createOrganizationSchema),
+    resolver: zodResolver(createCampusSchema),
     defaultValues: {
       name: '',
       slug: '',
@@ -50,16 +53,25 @@ export function CreateCampusDialog({
     },
   });
 
+  const createNewCampusRoleMutation = useMutation({
+    mutationKey: ['createCampus'],
+    mutationFn: async (data: CreateCampusFormValues) => {
+      const response = await axios.post<CreateCampusServiceResponse>(
+        '/api/campus/create',
+        data
+      );
+
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['campusList'],
+      });
+    },
+  });
+
   const onSubmit = async (data: CreateCampusFormValues) => {
-    setIsLoading(true);
-
-    const result = await createCampus(data);
-
-    if (result.error) {
-      toast.error(result.error.message);
-      setIsLoading(false);
-      return;
-    }
+    await createNewCampusRoleMutation.mutateAsync(data);
 
     toast.success('Campus created successfully');
 

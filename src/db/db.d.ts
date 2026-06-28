@@ -101,7 +101,6 @@ export interface User {
   id: string;
   image: string | null;
   name: string;
-  platformRole: string;
   role: string | null;
   updatedAt: Generated<Timestamp>;
 }

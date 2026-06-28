@@ -1,4 +1,4 @@
-import { PlatformRole } from '@/data/roles';
+import { PlatformRole } from '@/lib/auth/roles';
 import { db } from '@/utils/db';
 import { sql } from 'kysely';
 
@@ -8,14 +8,6 @@ export const findUserByEmail = (email: string) => {
     .selectAll()
     .where('email', '=', email)
     .executeTakeFirst();
-};
-
-export const setUserPlatformRole = (id: string, role: PlatformRole) => {
-  return db
-    .updateTable('user')
-    .set({ platformRole: role })
-    .where('id', '=', id)
-    .executeTakeFirstOrThrow();
 };
 
 /**
@@ -40,3 +32,23 @@ export const updatePlatformInitState = (userId: string) => {
     .where('id', '=', 1)
     .executeTakeFirstOrThrow();
 };
+
+export class AuthRepository {
+  async adminExists() {
+    return db
+      .selectFrom('user')
+      .selectAll()
+      .where('role', '=', 'admin')
+      .executeTakeFirst();
+  }
+
+  async setUserRole(userId: string, role: string) {
+    return db
+      .updateTable('user')
+      .set({
+        role: role,
+      })
+      .where('id', '=', userId)
+      .executeTakeFirstOrThrow();
+  }
+}

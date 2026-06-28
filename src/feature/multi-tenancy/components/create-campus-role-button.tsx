@@ -14,9 +14,9 @@ export function CreateCampusRoleButton({
   const { user } = useAuthStore();
 
   // Only show for system_admin users
-  if (user?.platformRole !== 'system_admin') {
-    return null;
-  }
+  // if (user?.platformRole !== 'system_admin') {
+  //   return null;
+  // }
 
   return (
     <>

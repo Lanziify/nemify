@@ -1,6 +1,6 @@
-import { PLATFORM_ROLES } from '@/data/roles';
+import { PLATFORM_ROLES } from '@/lib/auth/roles';
 import { signUpEmailSchema } from '@/feature/auth/schema/auth.schema';
-import { createSystemAccount } from '@/feature/auth/services/auth.service';
+// import { createSystemAccount } from '@/feature/auth/services/auth.service';
 import { apiErrorHandler, requiredInternalKey } from '@/lib/api-handler';
 import { BadRequestError } from '@/lib/errors/app-error';
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,12 +18,12 @@ export const POST = apiErrorHandler(
 
     const values = signUpEmailSchema.parse(body);
 
-    const user = await createSystemAccount({
-      values,
-      platformRole: PLATFORM_ROLES[roleKey],
-    });
+    // const user = await createSystemAccount({
+    //   values,
+    //   platformRole: PLATFORM_ROLES[roleKey],
+    // });
 
-    return NextResponse.json(user, { status: 200 });
+    return NextResponse.json({}, { status: 200 });
   },
   { guards: [requiredInternalKey] }
 );

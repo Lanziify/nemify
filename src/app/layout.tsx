@@ -6,6 +6,7 @@ import { AuthProvider } from '@/components/provider/auth-provider';
 import { Toaster } from '@/components/ui/sonner';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { queryClient } from '@/utils/query-client';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' });
 
@@ -42,7 +43,7 @@ export default function RootLayout({
       )}>
       <body className="flex min-h-full flex-col">
         <QueryClientProvider client={queryClient}>
-          {children}
+          <TooltipProvider>{children}</TooltipProvider>
         </QueryClientProvider>
         <Toaster />
       </body>

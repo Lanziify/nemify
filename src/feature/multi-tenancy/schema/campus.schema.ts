@@ -1,10 +1,11 @@
 import z from 'zod';
 import {
   CreateCampusRoleBody,
-  CreateOrganizationBody,
+  CreateCampusBody,
+  UpdateCampusRoleBody,
 } from '../services/campus.service';
 
-export const createOrganizationSchema = z.object({
+export const createCampusSchema = z.object({
   name: z
     .string()
     .trim()
@@ -19,7 +20,18 @@ export const createOrganizationSchema = z.object({
   logo: z.string().nullable().optional(),
   metadata: z.record(z.string(), z.any()).optional(),
   keepCurrentActiveOrganization: z.boolean().optional(),
-}) satisfies z.ZodType<CreateOrganizationBody>;
+}) satisfies z.ZodType<CreateCampusBody>;
+
+export type CreateCampusSchema = typeof createCampusSchema;
+export type CreateCampusFormValues = z.infer<CreateCampusSchema>;
+
+export const baseCampusRoleSchema = z.object({
+  role: z.string(),
+  permission: z.record(z.string(), z.array(z.string())),
+});
+
+export type BaseCampusRoleSchema = typeof baseCampusRoleSchema;
+export type BaseCampusRoleFormValues = z.infer<BaseCampusRoleSchema>;
 
 export const createCampusRoleSchema = z.object({
   organizationId: z.string(),
@@ -27,3 +39,19 @@ export const createCampusRoleSchema = z.object({
   permission: z.record(z.string(), z.array(z.string())),
   additionalFields: z.object().optional(),
 }) satisfies z.ZodType<CreateCampusRoleBody>;
+
+export type CreateCampusRoleSchema = typeof createCampusRoleSchema;
+export type CreateCampusRoleFormValues = z.infer<CreateCampusRoleSchema>;
+
+export const updateCampusRoleSchema = z.object({
+  organizationId: z.string(),
+  data: z.object({
+    permission: z.record(z.string(), z.array(z.string())).optional(),
+    roleName: z.string().optional(),
+  }),
+  roleName: z.string(),
+  roleId: z.string(),
+}) satisfies z.ZodType<UpdateCampusRoleBody>;
+
+export type UpdateCampusRoleSchema = typeof updateCampusRoleSchema;
+export type UpdateCampusRoleFormValues = z.infer<CreateCampusRoleSchema>;

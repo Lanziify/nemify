@@ -7,7 +7,7 @@ import { NoResultError } from 'kysely';
 export class CampusService {
   constructor(private campusRepo: CampusRepository) {}
 
-  async createCampus(values: CreateOrganizationBody) {
+  async createCampus(values: CreateCampusBody) {
     const { status: isSlugAvailable } = await auth.api.checkOrganizationSlug({
       body: {
         slug: values.slug,
@@ -40,12 +40,9 @@ export class CampusService {
     return this.campusRepo.findAll();
   }
 
-  async getCampusById(id: string, queryOptions?: CampusQueryOptionsWithoutId) {
+  async getCampus(query: GetCampuQuery) {
     return await auth.api.getFullOrganization({
-      query: {
-        organizationId: id,
-        ...queryOptions,
-      },
+      query,
       headers: await headers(),
     });
   }
@@ -69,6 +66,13 @@ export class CampusService {
     });
   }
 
+  async updateCampusRole(values: UpdateCampusRoleBody) {
+    return await auth.api.updateOrgRole({
+      body: values,
+      headers: await headers(),
+    });
+  }
+
   async getCampusRoles(id: string) {
     return await auth.api.listOrgRoles({
       query: { organizationId: id },
@@ -81,21 +85,20 @@ export type CampusWithRegisteredCount = Awaited<
   ReturnType<CampusService['getAllCampus']>
 >[0];
 
-export type CreateOrganizationBody = NonNullable<
+export type CreateCampusBody = NonNullable<
   Parameters<typeof auth.api.createOrganization>[0]
 >['body'];
 
-export type CampusQueryOptions = NonNullable<
+export type CreateCampusServiceResponse = Awaited<
+  ReturnType<CampusService['createCampus']>
+>;
+
+export type GetCampuQuery = NonNullable<
   Parameters<typeof auth.api.getFullOrganization>[0]
 >['query'];
 
-export type CampusQueryOptionsWithoutId = Omit<
-  NonNullable<CampusQueryOptions>,
-  'organizationId'
->;
-
 export type GetCampusByIdServiceResponse = Awaited<
-  ReturnType<CampusService['getCampusById']>
+  ReturnType<CampusService['getCampus']>
 >;
 
 export type CreateCampusRoleBody = NonNullable<
@@ -106,6 +109,12 @@ export type CreateCampusRoleServiceResult = Awaited<
   ReturnType<CampusService['createCampusRole']>
 >;
 
+export type UpdateCampusRoleBody = NonNullable<
+  Parameters<typeof auth.api.updateOrgRole>[0]
+>['body'];
+
 export type CampusRoleServiceResult = Awaited<
   ReturnType<CampusService['getCampusRoles']>
 >;
+
+export type CampusRoleServiceItem = CampusRoleServiceResult[0];

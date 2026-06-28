@@ -2,11 +2,13 @@ import { betterAuth } from 'better-auth';
 import { admin, organization } from 'better-auth/plugins';
 import { nextCookies } from 'better-auth/next-js';
 import { db } from './db';
-import { ac } from '@/data/permissions';
+import {
+  platformAccessControl,
+  globalRoles,
+  campusAccessControl,
+  campusRoles,
+} from '@/lib/auth/permissions';
 import { transporter } from './email';
-import { checkSystemAdministrationRole } from '@/feature/multi-tenancy/repositories/tenancy.repository';
-import { safeCatch } from '@/lib/errors/safe-catch';
-import { actionErrorParser } from '@/lib/errors/action-error-parser';
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL!,
@@ -42,16 +44,6 @@ export const auth = betterAuth({
     db: db,
     type: 'postgres',
   },
-  user: {
-    additionalFields: {
-      platformRole: {
-        type: 'string',
-        required: true,
-        defaultValue: 'system_user',
-        input: false,
-      },
-    },
-  },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     updateAge: 60 * 60 * 24, // 1 day - update session if older than this
@@ -61,9 +53,13 @@ export const auth = betterAuth({
     },
   },
   plugins: [
-    admin(),
+    admin({
+      ac: platformAccessControl,
+      roles: globalRoles,
+    }),
     organization({
-      ac,
+      ac: campusAccessControl,
+      roles: campusRoles,
       dynamicAccessControl: {
         enabled: true,
       },
@@ -95,15 +91,14 @@ export const auth = betterAuth({
           },
         },
       },
-      allowUserToCreateOrganization: async (user) => {
-        const { data } = await safeCatch(
-          async () => {
-            return await checkSystemAdministrationRole(user.id);
-          },
-          { parser: actionErrorParser }
-        );
+      allowUserToCreateOrganization: (user) => {
+        const inferedUser = user as AuthType['Session']['user'];
 
-        return data ? true : false;
+        const isUserAdmin = inferedUser.role === 'admin';
+
+        if (!isUserAdmin) return false;
+
+        return true;
       },
     }),
     nextCookies(),

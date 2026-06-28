@@ -2,7 +2,7 @@ import { auth } from '@/utils/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { apiErrorParser } from './errors/api-error-parser';
 import { BadRequestError, UnAuthorizedError } from './errors/app-error';
-import { PLATFORM_ROLES } from '@/data/roles';
+import { PLATFORM_ROLES } from '@/lib/auth/roles';
 import { isPlatformInitialized } from '@/utils/platform';
 
 type Context = { params: Record<string, string | string[]> };
@@ -58,18 +58,6 @@ export const requiredInternalKey: ApiGuard = async (req) => {
   if (internalKey !== process.env.INTERNAL_SECRET) {
     throw new BadRequestError(
       'Cannot perform request. Secret key is required.'
-    );
-  }
-};
-
-export const requiredSystemAdministration: ApiGuard = async (req) => {
-  const session = await auth.api.getSession({
-    headers: req.headers,
-  });
-
-  if (session?.user.platformRole !== PLATFORM_ROLES.admin) {
-    throw new UnAuthorizedError(
-      'Cannot perform action without system administration role.'
     );
   }
 };

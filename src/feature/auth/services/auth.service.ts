@@ -1,29 +1,25 @@
-import {
-  setUserPlatformRole,
-  findUserByEmail,
-} from '../repositories/auth.repository';
+import { AuthRepository } from '../repositories/auth.repository';
 import { SignUpEmailValues } from '../schema/auth.schema';
 import { auth } from '@/utils/auth';
-import { BadRequestError, DatabaseError } from '@/lib/errors/app-error';
-import { PlatformRole } from '@/data/roles';
+import { DatabaseError } from '@/lib/errors/app-error';
+import { PLATFORM_ROLES } from '@/lib/auth/roles';
 
-export const createSystemAccount = async (options: {
-  values: SignUpEmailValues;
-  platformRole: PlatformRole;
-}) => {
-  const userWithExistingEmail = await findUserByEmail(options.values.email);
+export class AuthService {
+  constructor(private repository: AuthRepository) {}
 
-  if (userWithExistingEmail) {
-    throw new BadRequestError('Cannot create user. Email is already taken.');
+  async createFirstAdmin(values: SignUpEmailValues) {
+    const isAdminExists = await this.repository.adminExists();
+
+    if (isAdminExists) {
+      throw new DatabaseError(
+        `Could not initialize admin. Admin already exist`
+      );
+    }
+
+    const response = await auth.api.signUpEmail({ body: values });
+
+    await this.repository.setUserRole(response.user.id, PLATFORM_ROLES.admin);
+
+    return response;
   }
-
-  const admin = await auth.api.signUpEmail({ body: options.values });
-
-  const result = await setUserPlatformRole(admin.user.id, options.platformRole);
-
-  if (result.numUpdatedRows === BigInt(0)) {
-    throw new DatabaseError('Cannot assign role. User does not exist.');
-  }
-
-  return admin;
-};
+}
