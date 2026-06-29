@@ -1,12 +1,6 @@
 'use client';
 
-import {
-  DynamicTableWrapper,
-  DynamicTable,
-  DynamicTablePagination,
-} from '@/components/custom/dynamic-data-table/table';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { CreateCampusRoleButton } from '@/feature/multi-tenancy/components/create-campus-role-button';
 import { CreateCampusRoleDialog } from '@/feature/multi-tenancy/components/create-campus-role-dialog';
 import {
   CampusRoleColumnActions,
@@ -96,18 +90,7 @@ export default function TestCampusDetailPage() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="members" className="bg-muted rounded-lg p-4">
-              <DynamicTableWrapper
-                columns={getCampusRoleColumns({ onEditRole })}
-                data={currentCampusRoles ?? []}>
-                <div className="mb-4 flex w-full items-center justify-between">
-                  <h2 className="text-2xl font-bold">Members</h2>
-                  <CreateCampusRoleButton
-                    campusId={currentCampus?.id as string}
-                  />
-                </div>
-                <DynamicTable />
-                <DynamicTablePagination />
-              </DynamicTableWrapper>
+              <p className="text-muted-foreground">Currently not available</p>
             </TabsContent>
             <TabsContent
               value="departments"
@@ -116,20 +99,7 @@ export default function TestCampusDetailPage() {
             </TabsContent>
             <TabsContent
               value="roles-permission"
-              className="bg-muted rounded-lg p-4">
-              <DynamicTableWrapper
-                columns={getCampusRoleColumns({ onEditRole })}
-                data={currentCampusRoles ?? []}>
-                <div className="mb-4 flex w-full items-center justify-between">
-                  <h2 className="text-2xl font-bold">Roles and Permissions</h2>
-                  <CreateCampusRoleButton
-                    campusId={currentCampus?.id as string}
-                  />
-                </div>
-                <DynamicTable />
-                {/* <DynamicTablePagination /> */}
-              </DynamicTableWrapper>
-            </TabsContent>
+              className="bg-muted rounded-lg p-4"></TabsContent>
           </Tabs>
         </CardContent>
       </Card>

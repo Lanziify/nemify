@@ -22,11 +22,6 @@ import { useAuthStore } from '@/store/auth-store';
 import { CreateCampusButton } from '@/feature/multi-tenancy/components';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  DynamicTable,
-  DynamicTablePagination,
-  DynamicTableWrapper,
-} from '@/components/custom/dynamic-data-table/table';
-import {
   CampusColumnActions,
   getCampusColumns,
 } from '@/feature/multi-tenancy/data/campus-colums';
@@ -35,14 +30,17 @@ import axios from 'axios';
 import { AuthType } from '@/utils/auth';
 import { apiErrorHandler } from '@/lib/api-handler';
 import { User, School, Users, ArrowRight } from 'lucide-react';
-import { usersColumns } from '@/feature/multi-tenancy/data/users-columns';
 import Link from 'next/link';
+import { GetUsersListServiceResponse } from '@/feature/users/service/user.service';
+import { GetUsersListQueryFormValues } from '@/feature/users/schemaa/user.schema';
+import React from 'react';
+import { UserTable } from '@/feature/users/components/user-table';
 
 export default function TestPage() {
   const router = useRouter();
   const { user, signOut } = useAuthStore();
 
-  const { data, error } = useQuery({
+  const { data: campusList, error: campusError } = useQuery({
     queryKey: ['campusList'],
     queryFn: async () => {
       const result = await axios.get<AuthType['Organization'][]>('/api/campus');
@@ -54,10 +52,6 @@ export default function TestPage() {
     await signOut();
     router.push('/signin');
   };
-
-  if (error && axios.isAxiosError<typeof apiErrorHandler>(error)) {
-    console.log(error.message);
-  }
 
   const onCampusInviteEmail: CampusColumnActions['onCampusInviteEmail'] = (
     data
@@ -118,20 +112,14 @@ export default function TestPage() {
           </TabsContent>
           <TabsContent value="users" className="bg-muted rounded-lg p-4">
             <div className="flex flex-wrap gap-2">
-              <DynamicTableWrapper columns={usersColumns} data={[]}>
-                <div className="mb-4 flex w-full items-center justify-between">
-                  <h2 className="text-2xl font-bold">Users List</h2>
-                </div>
-                <DynamicTable />
-                <DynamicTablePagination />
-              </DynamicTableWrapper>
+              <UserTable />
             </div>
           </TabsContent>
           <TabsContent value="campus" className="bg-muted rounded-lg p-4">
             {/* RBAC: System Admin Actions */}
             <div className="flex w-full flex-col gap-6">
-              {data &&
-                data.map((campus) => (
+              {campusList &&
+                campusList.map((campus) => (
                   <Item variant="outline" key={campus.id}>
                     <ItemMedia variant="image">
                       <Avatar className="size-10">
