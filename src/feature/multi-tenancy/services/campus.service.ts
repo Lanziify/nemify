@@ -66,6 +66,13 @@ export class CampusService {
     });
   }
 
+  async getCampusRoles(id: string) {
+    return await auth.api.listOrgRoles({
+      query: { organizationId: id },
+      headers: await headers(),
+    });
+  }
+
   async updateCampusRole(values: UpdateCampusRoleBody) {
     return await auth.api.updateOrgRole({
       body: values,
@@ -73,17 +80,17 @@ export class CampusService {
     });
   }
 
-  async getCampusRoles(id: string) {
-    return await auth.api.listOrgRoles({
-      query: { organizationId: id },
+  async createUserInvitation(values: CreateUserInviationBody) {
+    return await auth.api.createInvitation({
+      body: values,
       headers: await headers(),
     });
   }
 }
 
-export type CampusWithRegisteredCount = Awaited<
+export type GetAllCampusServiceResponse = Awaited<
   ReturnType<CampusService['getAllCampus']>
->[0];
+>;
 
 export type CreateCampusBody = NonNullable<
   Parameters<typeof auth.api.createOrganization>[0]
@@ -97,8 +104,12 @@ export type GetCampuQuery = NonNullable<
   Parameters<typeof auth.api.getFullOrganization>[0]
 >['query'];
 
-export type GetCampusByIdServiceResponse = Awaited<
+export type GetCampusServiceResponse = Awaited<
   ReturnType<CampusService['getCampus']>
+>;
+
+export type GetCampusBySlugServiceResponse = Awaited<
+  ReturnType<CampusService['getCampusBySlug']>
 >;
 
 export type CreateCampusRoleBody = NonNullable<
@@ -117,4 +128,10 @@ export type CampusRoleServiceResult = Awaited<
   ReturnType<CampusService['getCampusRoles']>
 >;
 
-export type CampusRoleServiceItem = CampusRoleServiceResult[0];
+export type CreateUserInviationBody = NonNullable<
+  Parameters<typeof auth.api.createInvitation>[0]
+>['body'];
+
+export type CreateUserInvitationServiceResult = Awaited<
+  ReturnType<CampusService['createUserInvitation']>
+>;

@@ -20,7 +20,11 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 
-interface UserColumnActions {}
+export interface UserColumnActions {
+  onInviteUserByEmail: (row: GetUsersListServiceResponse['users'][0]) => void;
+}
+
+export type RowUser = Parameters<UserColumnActions['onInviteUserByEmail']>[0];
 
 export const getUserColumns = (
   actions: UserColumnActions
@@ -92,8 +96,6 @@ export const getUserColumns = (
         </Button>
       ),
       cell: ({ row }) => {
-        const user = row.original;
-
         return (
           <div className="flex w-full items-center justify-center">
             <DropdownMenu>
@@ -107,7 +109,12 @@ export const getUserColumns = (
                     <DropdownMenuSubTrigger>Invite user</DropdownMenuSubTrigger>
                     <DropdownMenuPortal>
                       <DropdownMenuSubContent>
-                        <DropdownMenuItem>Email</DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() =>
+                            actions.onInviteUserByEmail(row.original)
+                          }>
+                          Email
+                        </DropdownMenuItem>
                         <DropdownMenuItem>Message</DropdownMenuItem>
                         <DropdownMenuSeparator />
                         <DropdownMenuItem>More...</DropdownMenuItem>

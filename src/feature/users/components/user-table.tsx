@@ -5,7 +5,7 @@ import {
   DynamicTablePagination,
 } from '@/components/custom/dynamic-table';
 
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 import {
@@ -13,12 +13,17 @@ import {
   useDynamicTableContext,
 } from '@/components/provider/dynamic-table-provider';
 
-import { getUserColumns } from '../data/user-columns';
+import {
+  getUserColumns,
+  RowUser,
+  UserColumnActions,
+} from '../data/user-columns';
 
 import { GetUsersListServiceResponse } from '../service/user.service';
 import { GetUsersListQueryFormValues } from '../schemaa/user.schema';
 
 import { toast } from 'sonner';
+import { CampusInviationDialog } from '@/feature/multi-tenancy/components/user-invitation-dialog';
 
 interface UserTableContentProps {
   onQueryChange: (
@@ -62,6 +67,10 @@ function UserTableContent({ onQueryChange }: UserTableContentProps) {
 }
 
 export const UserTable = () => {
+  const [onOpenInvitationDialog, setOnOpenInvitationDialog] =
+    React.useState(false);
+  const [rowUser, setRowUser] = React.useState<RowUser>();
+
   const [usersListQuery, setUsersListQuery] =
     React.useState<GetUsersListQueryFormValues>({
       limit: 10,
@@ -85,6 +94,13 @@ export const UserTable = () => {
     placeholderData: (previousData) => previousData,
   });
 
+  const onInviteUserByEmail: UserColumnActions['onInviteUserByEmail'] = (
+    row
+  ) => {
+    setRowUser(row);
+    setOnOpenInvitationDialog(true);
+  };
+
   React.useEffect(() => {
     if (error && axios.isAxiosError(error)) {
       toast.error(error.message);
@@ -103,10 +119,20 @@ export const UserTable = () => {
   );
 
   return (
-    <DynamicTableProvider<GetUsersListServiceResponse['users'][0]>
-      initialColumns={getUserColumns({})}
-      initialData={data?.users ?? []}>
-      <UserTableContent onQueryChange={handleQueryChange} />
-    </DynamicTableProvider>
+    <React.Fragment>
+      <DynamicTableProvider<GetUsersListServiceResponse['users'][0]>
+        initialColumns={getUserColumns({
+          onInviteUserByEmail,
+        })}
+        initialData={data?.users ?? []}>
+        <UserTableContent onQueryChange={handleQueryChange} />
+      </DynamicTableProvider>
+
+      <CampusInviationDialog
+        user={rowUser!}
+        open={onOpenInvitationDialog}
+        onOpenChange={setOnOpenInvitationDialog}
+      />
+    </React.Fragment>
   );
 };

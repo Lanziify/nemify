@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, Ellipsis } from 'lucide-react';
-import { CampusWithRegisteredCount } from '../services/campus.service';
+import { GetAllCampusServiceResponse } from '../services/campus.service';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -18,12 +18,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 export type CampusColumnActions = {
-  onCampusInviteEmail: (row: CampusWithRegisteredCount) => void;
+  onCampusInviteEmail: (row: GetAllCampusServiceResponse[0]) => void;
 };
 
 export const getCampusColumns = (
   actions: CampusColumnActions
-): ColumnDef<CampusWithRegisteredCount>[] => {
+): ColumnDef<GetAllCampusServiceResponse[0]>[] => {
   return [
     // {
     //   id: 'select',

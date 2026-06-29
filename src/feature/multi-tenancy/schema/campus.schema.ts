@@ -3,6 +3,7 @@ import {
   CreateCampusRoleBody,
   CreateCampusBody,
   UpdateCampusRoleBody,
+  CreateUserInviationBody,
 } from '../services/campus.service';
 
 export const createCampusSchema = z.object({
@@ -54,4 +55,14 @@ export const updateCampusRoleSchema = z.object({
 }) satisfies z.ZodType<UpdateCampusRoleBody>;
 
 export type UpdateCampusRoleSchema = typeof updateCampusRoleSchema;
-export type UpdateCampusRoleFormValues = z.infer<CreateCampusRoleSchema>;
+export type UpdateCampusRoleFormValues = z.infer<UpdateCampusRoleSchema>;
+
+export const createUserInvitationSchema = z.object({
+  email: z.email(),
+  role: z.string(),
+  organizationId: z.string(),
+  resend: z.boolean().optional(),
+}) satisfies z.ZodType<CreateUserInviationBody>;
+
+export type CreateUserInvitationSchema = typeof createUserInvitationSchema;
+export type CreateUserInvitationFormValues = z.infer<CreateUserInvitationSchema>;

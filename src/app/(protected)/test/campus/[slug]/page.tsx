@@ -15,62 +15,22 @@ import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserKey, Users } from 'lucide-react';
+import { useCampusQueries } from '@/feature/multi-tenancy/hooks/use-campus-queries';
+import { RolesPermissionTable } from '@/feature/multi-tenancy/components/roles-permission-table';
 
 export default function TestCampusDetailPage() {
   const params = useParams();
-  const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editRoleValues, setEditRoleValues] = React.useState<CampusRoleRow>();
   const { slug } = params;
-
-  const {
-    data: currentCampus,
-    error: currentCampusError,
-    isLoading: currentCampusLoading,
-  } = useQuery({
-    queryKey: ['campus', slug],
-    queryFn: async () => {
-      const result = await axios.get<AuthType['Organization']>(
-        `/api/campus/by-slug/${slug}`
-      );
-      return result.data;
-    },
-  });
-
-  const {
-    data: currentCampusRoles,
-    error: currentCampusRolesError,
-    isLoading: currentCampusRolesLoading,
-  } = useQuery({
-    queryKey: ['campusRole', currentCampus?.id],
-    queryFn: async () => {
-      const result = await axios.get<CampusRoleServiceResult>(
-        `/api/campus/${currentCampus?.id}/roles`
-      );
-      return result.data;
-    },
-    enabled: !!currentCampus,
-  });
-
-  const onEditRole: CampusRoleColumnActions['onEditRole'] = (data) => {
-    setIsDialogOpen(true);
-    setEditRoleValues(data);
-  };
-
-  React.useEffect(() => {
-    if (!currentCampus && currentCampusError) {
-      router.push('/test/campus');
-    }
-  }, [currentCampus, currentCampusError, router]);
-
-  if (currentCampusLoading) return <div>Loading...</div>;
+  const { campusBySlug } = useCampusQueries({ campusSlug: String(slug) });
 
   return (
     <>
       <Card className="w-full max-w-3xl">
         <CardHeader>
           <CardTitle className="text-3xl font-bold">
-            {currentCampus?.name}
+            {campusBySlug?.data?.name}
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -99,12 +59,14 @@ export default function TestCampusDetailPage() {
             </TabsContent>
             <TabsContent
               value="roles-permission"
-              className="bg-muted rounded-lg p-4"></TabsContent>
+              className="bg-muted rounded-lg p-4">
+              <RolesPermissionTable campusSlug={String(slug)} />
+            </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
       <CreateCampusRoleDialog
-        campusId={currentCampus?.id as string}
+        campusId={campusBySlug?.data?.id as string}
         open={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         editValues={editRoleValues}
