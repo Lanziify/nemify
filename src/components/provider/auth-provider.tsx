@@ -1,22 +1,29 @@
 'use client';
 
+import * as React from 'react';
+
 import { useAuthStore } from '@/store/auth-store';
 import { AuthType } from '@/utils/auth';
-import React from 'react';
 
 type AuthProvidersProps = {
-  sessionData: AuthType['Session'];
+  sessionData: AuthType['Session'] | null;
   children: React.ReactNode;
 };
 
 export function AuthProvider({ sessionData, children }: AuthProvidersProps) {
-  const setAuthSession = useAuthStore((state) => state.setAuthSession);
+  const initialized = React.useRef(false);
 
-  React.useEffect(() => {
-    if (!sessionData) return;
+  if (!initialized.current) {
+    initialized.current = true;
 
-    setAuthSession(sessionData);
-  }, [sessionData]);
+    useAuthStore.setState({
+      user: sessionData?.user ?? null,
 
-  return <>{children}</>;
+      session: sessionData?.session ?? null,
+
+      isInitialized: true,
+    });
+  }
+
+  return children;
 }

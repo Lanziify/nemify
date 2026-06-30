@@ -3,7 +3,6 @@ import React from 'react';
 import { redirect } from 'next/navigation';
 import { toast } from 'sonner';
 import { getSessionData } from '@/feature/auth/actions/auth.action';
-import { DynamicTableWrapper } from '@/components/custom/dynamic-data-table/table';
 
 type ProtectedPagesLayoutProps = {
   breadcrumbs: React.ReactNode;

@@ -2,10 +2,10 @@ import { queryOptions } from '@tanstack/react-query';
 import { getCampusInvitation } from '../api/invitations.api';
 
 export const campusInvitationQueries = {
-  getInvitationById: (id: string) =>
+  getInvitationById: (id: string, enabled: boolean) =>
     queryOptions({
       queryKey: ['campusInvitation', id],
       queryFn: () => getCampusInvitation(id),
-      enabled: !!id,
+      enabled,
     }),
 };

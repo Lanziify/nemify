@@ -99,13 +99,13 @@ export function CreateCampusRoleDialog({
     router.refresh();
   };
 
-  const isPending = createRole.isPending ?? updateRole.isPending;
+    const isPending = createRole.isPending ?? updateRole.isPending;
 
-  const dialogMode: DialogMode = isPending
-    ? 'Loading'
-    : editValues
-      ? 'Editing'
-      : 'Default';
+    const dialogMode: DialogMode = isPending
+      ? 'Loading'
+      : editValues
+        ? 'Editing'
+        : 'Default';
 
   React.useEffect(() => {
     reset({

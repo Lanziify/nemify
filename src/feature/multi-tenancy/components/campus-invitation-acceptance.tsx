@@ -2,65 +2,185 @@
 
 import * as React from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { CheckCircle2 } from 'lucide-react';
 
-import { useAuthStore } from '@/store/auth-store';
 import {
   Empty,
   EmptyHeader,
   EmptyMedia,
   EmptyTitle,
   EmptyDescription,
-  EmptyContent,
 } from '@/components/ui/empty';
+
 import { Spinner } from '@/components/ui/spinner';
+
+import { authClient } from '@/utils/auth-client';
+import { AuthType } from '@/utils/auth';
+
 import { useCampusInvitationQueries } from '../hooks/use-invitation-quries';
-import { AxiosError } from 'axios';
+import { useAcceptCampusInvitation } from '../mutations/invitation.mutation';
+
+type Status = 'verifying' | 'accepting' | 'success' | 'error';
 
 export function CampusInvitationAcceptance() {
   const router = useRouter();
   const searchParams = useSearchParams();
+
   const invitationId = searchParams.get('id');
-  const { session } = useAuthStore();
 
-  if (!invitationId) {
-    router.push('/signin?error=missing_invitation');
-  }
+  const [session, setSession] = React.useState<
+    AuthType['Session']['session'] | null
+  >(null);
 
-  if (!session) {
-    const callbackURL = `/invite/campus-invitation?id=${invitationId}`;
-    router.push(
-      `/signin?callbackURL=${encodeURIComponent(callbackURL)}&message=${encodeURIComponent('Please sign in to accept the campus invitation')}`
-    );
-  }
+  const [isLoading, setIsLoading] = React.useState(true);
 
+  const [status, setStatus] = React.useState<Status>('verifying');
+
+  const hasTriggered = React.useRef(false);
+
+  const acceptInvitation = useAcceptCampusInvitation();
+
+  /**
+   * Load auth session
+   */
+  React.useEffect(() => {
+    async function loadSession() {
+      try {
+        const { data } = await authClient.getSession();
+
+        setSession(data?.session ?? null);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    loadSession();
+  }, []);
+
+  /**
+   * Fetch invitation only after auth resolves
+   */
   const { campusInvitation } = useCampusInvitationQueries({
-    invitationId: invitationId!,
+    invitationId: invitationId ?? '',
+
+    enabled: !isLoading && !!session && !!invitationId,
   });
 
-  if (campusInvitation.error) {
-    const error = campusInvitation.error as AxiosError<{
-      message: string;
-    }>;
+  /**
+   * Redirect after session loads
+   */
+  React.useEffect(() => {
+    if (isLoading) return;
 
-    router.push(`/test?message=${error.message}`);
+    if (!invitationId) {
+      router.replace('/test?error=missing_invitation');
+
+      return;
+    }
+
+    if (!session) {
+      router.replace(
+        `/signin?callbackURL=${encodeURIComponent(
+          `/invite/campus-invitation?id=${invitationId}`
+        )}`
+      );
+
+      return;
+    }
+  }, [isLoading, session, invitationId, router]);
+
+  /**
+   * Invitation validation failed
+   */
+  React.useEffect(() => {
+    if (!campusInvitation.error) return;
+
+    setStatus('error');
+
+    setTimeout(() => {
+      router.replace('/test?error=invalid_invitation');
+    }, 1500);
+  }, [campusInvitation.error, router]);
+
+  /**
+   * Accept invitation once
+   */
+  React.useEffect(() => {
+    if (
+      isLoading ||
+      !session ||
+      !invitationId ||
+      hasTriggered.current ||
+      !campusInvitation.data
+    ) {
+      return;
+    }
+
+    hasTriggered.current = true;
+
+    setStatus('accepting');
+
+    acceptInvitation.mutate(invitationId, {
+      onSuccess: () => {
+        setStatus('success');
+
+        setTimeout(() => {
+          router.replace('/test');
+        }, 1800);
+      },
+
+      onError: () => {
+        setStatus('error');
+
+        setTimeout(() => {
+          router.replace('/test?error=accept_failed');
+        }, 1500);
+      },
+    });
+  }, [
+    isLoading,
+    session,
+    invitationId,
+    campusInvitation.data,
+    acceptInvitation,
+    router,
+  ]);
+
+  if (isLoading || campusInvitation.isLoading) {
+    return (
+      <Empty>
+        <Spinner />
+      </Empty>
+    );
   }
 
   return (
     <Empty className="w-full">
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <Spinner />
+          {status === 'success' ? (
+            <CheckCircle2 className="size-10 text-green-500" />
+          ) : (
+            <Spinner />
+          )}
         </EmptyMedia>
-        <EmptyTitle>Please wait</EmptyTitle>
+
+        <EmptyTitle>
+          {status === 'verifying' && 'Verifying invitation'}
+
+          {status === 'accepting' && 'Accepting invitation'}
+
+          {status === 'success' && 'Invitation accepted'}
+
+          {status === 'error' && 'Something went wrong'}
+        </EmptyTitle>
+
         <EmptyDescription>
-          Please wait while we process your request. Do not refresh the page.
+          {status === 'success'
+            ? 'Redirecting you to your campus…'
+            : 'Please wait while we process your request.'}
         </EmptyDescription>
       </EmptyHeader>
-      {/* <EmptyContent>
-        <Button variant="outline" size="sm">
-          Cancel
-        </Button>
-      </EmptyContent> */}
     </Empty>
   );
 }

@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createCampusInvitation } from '../api/invitations.api';
+import { acceptCampusInvitation, createCampusInvitation } from '../api/invitations.api';
 
 export const useCreateCampusInvitation = () => {
   const queryClient = useQueryClient();
@@ -13,4 +13,18 @@ export const useCreateCampusInvitation = () => {
       });
     },
   });
+};
+
+export const useAcceptCampusInvitation = () => {
+    // const queryClient = useQueryClient();
+
+    return useMutation({
+      mutationFn: acceptCampusInvitation,
+
+      // onSuccess() {
+      //   queryClient.invalidateQueries({
+      //     queryKey: ['campuses'],
+      //   });
+      // },
+    });
 };

@@ -7,16 +7,16 @@ import {
 import { CreateCampusInvitationFormValues } from '../schema/invitation.schema';
 import { withClientErrorHandling } from '@/lib/errors/client-error-parser';
 
-export async function createCampusInvitation(
-  values: CreateCampusInvitationFormValues
-) {
-  const { data } = await axios.post<CreateCampusInvitationResult>(
-    `/api/campus/${values.organizationId}/invitations`,
-    values
-  );
+export const createCampusInvitation = withClientErrorHandling(
+  async (values: CreateCampusInvitationFormValues) => {
+    const { data } = await axios.post<CreateCampusInvitationResult>(
+      `/api/campus/${values.organizationId}/invitations`,
+      values
+    );
 
-  return data;
-}
+    return data;
+  }
+);
 
 export const getCampusInvitation = withClientErrorHandling(
   async (id: string) => {
@@ -28,10 +28,12 @@ export const getCampusInvitation = withClientErrorHandling(
   }
 );
 
-export async function acceptInvitation(id: string) {
-  const { data } = await axios.post<AcceptCampusInvitationResult>(
-    `/api/invitations/${id}/accept`
-  );
+export const acceptCampusInvitation = withClientErrorHandling(
+  async (id: string) => {
+    const { data } = await axios.post<AcceptCampusInvitationResult>(
+      `/api/invitations/${id}/accept`
+    );
 
-  return data;
-}
+    return data;
+  }
+);
