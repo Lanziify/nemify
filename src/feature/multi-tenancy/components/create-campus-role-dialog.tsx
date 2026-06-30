@@ -28,13 +28,13 @@ import {
   FieldLabel,
 } from '@/components/ui/field';
 import { Switch } from '@/components/ui/switch';
-import { useMutation } from '@tanstack/react-query';
-import { queryClient } from '@/utils/query-client';
-import axios from 'axios';
-import { CreateCampusRoleServiceResult } from '../services/campus.service';
 import { CampusSchemaAdapter } from '../utils/schema-adapter';
 import { CampusRoleRow } from '../data/role-columns';
 import { CAMPUS_POLICIES } from '@/lib/auth/policies.campus';
+import {
+  useCreateCampusRole,
+  useUpdateCampusRole,
+} from '../mutations/campus.mutation';
 
 interface CreateCampusRoleDialogProps {
   campusId: string;
@@ -52,42 +52,13 @@ export function CreateCampusRoleDialog({
   editValues,
 }: CreateCampusRoleDialogProps) {
   const router = useRouter();
+  const createRole = useCreateCampusRole();
+  const updateRole = useUpdateCampusRole();
 
   const defaultFormValues: BaseCampusRoleFormValues = {
     role: '',
     permission: {},
   };
-
-  const createNewCampusRoleMutation = useMutation({
-    mutationKey: ['createCampusRole'],
-    mutationFn: async (data: BaseCampusRoleFormValues) => {
-      const transformer = new CampusSchemaAdapter(data);
-      const isEditing = !!editValues;
-
-      if (isEditing) {
-        return (
-          await axios.patch<CreateCampusRoleServiceResult>(
-            `/api/campus/${campusId}/roles`,
-            transformer.transformBaseValuesToUpdate(editValues)
-          )
-        ).data;
-      }
-
-      return (
-        await axios.post<CreateCampusRoleServiceResult>(
-          `/api/campus/${campusId}/roles`,
-          transformer.transformBaseValuesToCreate({
-            organizationId: campusId,
-          })
-        )
-      ).data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ['campusRole'],
-      });
-    },
-  });
 
   const {
     register,
@@ -102,16 +73,35 @@ export function CreateCampusRoleDialog({
   });
 
   const onSubmit = async (data: BaseCampusRoleFormValues) => {
-    await createNewCampusRoleMutation.mutateAsync(data);
+    const transformer = new CampusSchemaAdapter(data);
+    const isEditing = !!editValues;
 
-    toast.success('Role created successfully');
+    if (isEditing) {
+      await updateRole.mutateAsync({
+        campusId,
+        values: transformer.transformBaseValuesToUpdate(editValues),
+      });
+    } else {
+      await createRole.mutateAsync({
+        campusId,
+        values: transformer.transformBaseValuesToCreate({
+          organizationId: campusId,
+        }),
+      });
+    }
+
+    toast.success(
+      isEditing ? 'Role successfully updated' : 'Role created successfully'
+    );
 
     reset();
     onOpenChange(false);
     router.refresh();
   };
 
-  const dialogMode: DialogMode = createNewCampusRoleMutation.isPending
+  const isPending = createRole.isPending ?? updateRole.isPending;
+
+  const dialogMode: DialogMode = isPending
     ? 'Loading'
     : editValues
       ? 'Editing'
@@ -239,13 +229,11 @@ export function CreateCampusRoleDialog({
                 type="button"
                 variant="outline"
                 onClick={() => onOpenChange(false)}
-                disabled={createNewCampusRoleMutation.isPending}>
+                disabled={isPending}>
                 Cancel
               </Button>
-              <Button
-                type="submit"
-                disabled={createNewCampusRoleMutation.isPending}>
-                {createNewCampusRoleMutation.isPending
+              <Button type="submit" disabled={isPending}>
+                {isPending
                   ? editValues
                     ? 'Saving...'
                     : 'Creating...'

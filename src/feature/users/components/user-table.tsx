@@ -23,7 +23,7 @@ import { GetUsersListServiceResponse } from '../service/user.service';
 import { GetUsersListQueryFormValues } from '../schemaa/user.schema';
 
 import { toast } from 'sonner';
-import { CampusInviationDialog } from '@/feature/multi-tenancy/components/user-invitation-dialog';
+import { CampusInvitationDialog } from '@/feature/multi-tenancy/components/user-invitation-dialog';
 
 interface UserTableContentProps {
   onQueryChange: (
@@ -128,7 +128,7 @@ export const UserTable = () => {
         <UserTableContent onQueryChange={handleQueryChange} />
       </DynamicTableProvider>
 
-      <CampusInviationDialog
+      <CampusInvitationDialog
         user={rowUser!}
         open={onOpenInvitationDialog}
         onOpenChange={setOnOpenInvitationDialog}

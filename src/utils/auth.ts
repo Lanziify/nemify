@@ -100,6 +100,69 @@ export const auth = betterAuth({
 
         return true;
       },
+      sendInvitationEmail: async (data) => {
+        const inviteLink = `${process.env.NEXT_PUBLIC_SERVER_URL}/invite/campus-invitation?id=${data.id}`;
+
+        await transporter.sendMail({
+          from: process.env.ADMIN_FROM!,
+          to: data.email,
+          subject: `You're invited to join ${data.organization.name}`,
+          html: `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #333;">
+        
+        <h2 style="margin-bottom: 16px;">
+          You've been invited 🎉
+        </h2>
+
+        <p style="font-size: 16px; line-height: 1.6;">
+          Hi,
+        </p>
+
+        <p style="font-size: 16px; line-height: 1.6;">
+          <strong>${data.inviter.user.name}</strong> 
+          (${data.inviter.user.email}) has invited you to join 
+          <strong>${data.organization.name}</strong>.
+        </p>
+
+        <p style="font-size: 16px; line-height: 1.6;">
+          Click the button below to accept your invitation:
+        </p>
+
+        <div style="margin: 32px 0;">
+          <a 
+            href="${inviteLink}"
+            style="
+              background-color: #2563eb;
+              color: white;
+              text-decoration: none;
+              padding: 12px 20px;
+              border-radius: 8px;
+              display: inline-block;
+              font-weight: 600;
+            "
+          >
+            Accept Invitation
+          </a>
+        </div>
+
+        <p style="font-size: 14px; color: #666; line-height: 1.6;">
+          If the button doesn’t work, copy and paste this link into your browser:
+        </p>
+
+        <p style="font-size: 14px; word-break: break-all;">
+          <a href="${inviteLink}">${inviteLink}</a>
+        </p>
+
+        <hr style="margin: 32px 0; border: none; border-top: 1px solid #eee;" />
+
+        <p style="font-size: 12px; color: #999;">
+          If you weren’t expecting this invitation, you can safely ignore this email.
+        </p>
+
+      </div>
+    `,
+        });
+      },
     }),
     nextCookies(),
   ],

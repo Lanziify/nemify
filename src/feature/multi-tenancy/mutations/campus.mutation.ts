@@ -1,30 +1,31 @@
-// campus.mutation.ts
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import {
-  mutationOptions,
-  useMutation,
-  useQueryClient,
-} from '@tanstack/react-query';
+import { createCampusRole, updateCampusRole } from '../api/campus.api';
 
-import { inviteUserToCampus } from '../api/campus.api';
-
-export const useInviteUser = () => {
+export const useCreateCampusRole = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: inviteUserToCampus,
+    mutationFn: createCampusRole,
 
     onSuccess() {
       queryClient.invalidateQueries({
-        queryKey: ['campuses'],
+        queryKey: ['campusRoles'],
       });
     },
   });
 };
 
-export const campusMutations = {
-  invite: () =>
-    mutationOptions({
-      mutationFn: inviteUserToCampus,
-    }),
+export const useUpdateCampusRole = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: updateCampusRole,
+
+    onSuccess() {
+      queryClient.invalidateQueries({
+        queryKey: ['campusRoles'],
+      });
+    },
+  });
 };

@@ -3,7 +3,7 @@ import {
   CreateCampusRoleBody,
   CreateCampusBody,
   UpdateCampusRoleBody,
-  CreateUserInviationBody,
+  GetCampusMembersQuery,
 } from '../services/campus.service';
 
 export const createCampusSchema = z.object({
@@ -57,12 +57,39 @@ export const updateCampusRoleSchema = z.object({
 export type UpdateCampusRoleSchema = typeof updateCampusRoleSchema;
 export type UpdateCampusRoleFormValues = z.infer<UpdateCampusRoleSchema>;
 
-export const createUserInvitationSchema = z.object({
-  email: z.email(),
-  role: z.string(),
-  organizationId: z.string(),
-  resend: z.boolean().optional(),
-}) satisfies z.ZodType<CreateUserInviationBody>;
+export const getCampusMembersQuerySchema = z.object({
+  organizationId: z.string().optional(),
+  limit: z.union([z.string().regex(/^\d+$/), z.number()]).optional(),
+  offset: z.union([z.string().regex(/^\d+$/), z.number()]).optional(),
+  sortBy: z.string().optional(),
+  sortDirection: z.enum(['asc', 'desc']).optional(),
+  filterField: z.string().optional(),
+  filterValue: z
+    .union([
+      z.string(),
+      z.number(),
+      z.boolean(),
+      z.array(z.string()),
+      z.array(z.number()),
+    ])
+    .optional(),
+  filterOperator: z
+    .enum([
+      'in',
+      'contains',
+      'starts_with',
+      'ends_with',
+      'eq',
+      'ne',
+      'gt',
+      'gte',
+      'lt',
+      'lte',
+      'not_in',
+    ])
+    .optional(),
+}) satisfies z.ZodType<GetCampusMembersQuery>;
 
-export type CreateUserInvitationSchema = typeof createUserInvitationSchema;
-export type CreateUserInvitationFormValues = z.infer<CreateUserInvitationSchema>;
+export type GetCampusMembersQuerySchema = typeof getCampusMembersQuerySchema;
+export type GetCampusMembersQueryFormValues =
+  z.infer<GetCampusMembersQuerySchema>;

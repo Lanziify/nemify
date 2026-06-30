@@ -3,6 +3,8 @@ import {
   getCampus,
   getCampusBySlug,
   getCampuses,
+  GetCampusMemberParams,
+  getCampusMembers,
   getCampusRoles,
 } from '../api/campus.api';
 
@@ -32,6 +34,13 @@ export const campusQueries = {
     queryOptions({
       queryKey: ['campusRoles', campusId],
       queryFn: () => getCampusRoles(campusId!),
+      enabled: !!campusId,
+    }),
+
+  members: ({ campusId, query }: GetCampusMemberParams) =>
+    queryOptions({
+      queryKey: ['campusMembers', query],
+      queryFn: () => getCampusMembers({ campusId, query }),
       enabled: !!campusId,
     }),
 };

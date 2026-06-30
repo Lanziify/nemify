@@ -40,7 +40,7 @@ export class CampusService {
     return this.campusRepo.findAll();
   }
 
-  async getCampus(query: GetCampuQuery) {
+  async getCampus(query: GetCampusQuery) {
     return await auth.api.getFullOrganization({
       query,
       headers: await headers(),
@@ -80,9 +80,25 @@ export class CampusService {
     });
   }
 
-  async createUserInvitation(values: CreateUserInviationBody) {
+  async createCampusInvitation(values: CreateCampusInvitationBody) {
     return await auth.api.createInvitation({
       body: values,
+      headers: await headers(),
+    });
+  }
+
+  async acceptCampusInvitation(id: string) {
+    return await auth.api.acceptInvitation({
+      body: {
+        invitationId: id,
+      },
+      headers: await headers(),
+    });
+  }
+
+  async getCampusMembers(query: GetCampusMembersQuery) {
+    return await auth.api.listMembers({
+      query,
       headers: await headers(),
     });
   }
@@ -100,7 +116,7 @@ export type CreateCampusServiceResponse = Awaited<
   ReturnType<CampusService['createCampus']>
 >;
 
-export type GetCampuQuery = NonNullable<
+export type GetCampusQuery = NonNullable<
   Parameters<typeof auth.api.getFullOrganization>[0]
 >['query'];
 
@@ -124,14 +140,30 @@ export type UpdateCampusRoleBody = NonNullable<
   Parameters<typeof auth.api.updateOrgRole>[0]
 >['body'];
 
+export type UpdateCampusRoleServiceResult = Awaited<
+  ReturnType<CampusService['updateCampusRole']>
+>;
+
 export type CampusRoleServiceResult = Awaited<
   ReturnType<CampusService['getCampusRoles']>
 >;
 
-export type CreateUserInviationBody = NonNullable<
+export type CreateCampusInvitationBody = NonNullable<
   Parameters<typeof auth.api.createInvitation>[0]
 >['body'];
 
-export type CreateUserInvitationServiceResult = Awaited<
-  ReturnType<CampusService['createUserInvitation']>
+export type CreateCampusInvitationServiceResult = Awaited<
+  ReturnType<CampusService['createCampusInvitation']>
+>;
+
+export type AcceptCampusInvitationServiceResult = Awaited<
+  ReturnType<CampusService['acceptCampusInvitation']>
+>;
+
+export type GetCampusMembersQuery = NonNullable<
+  Parameters<typeof auth.api.listMembers>[0]
+>['query'];
+
+export type GetCampusMembersServiceResult = Awaited<
+  ReturnType<CampusService['getCampusMembers']>
 >;

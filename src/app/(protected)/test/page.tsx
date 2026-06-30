@@ -17,47 +17,34 @@ import {
   ItemActions,
   ItemMedia,
 } from '@/components/ui/item';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
 import { CreateCampusButton } from '@/feature/multi-tenancy/components';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  CampusColumnActions,
-  getCampusColumns,
-} from '@/feature/multi-tenancy/data/campus-colums';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { AuthType } from '@/utils/auth';
-import { apiErrorHandler } from '@/lib/api-handler';
 import { User, School, Users, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import { GetUsersListServiceResponse } from '@/feature/users/service/user.service';
-import { GetUsersListQueryFormValues } from '@/feature/users/schemaa/user.schema';
 import React from 'react';
 import { UserTable } from '@/feature/users/components/user-table';
+import { useCampusQueries } from '@/feature/multi-tenancy/hooks/use-campus-queries';
+import { toast } from 'sonner';
 
 export default function TestPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, signOut } = useAuthStore();
-
-  const { data: campusList, error: campusError } = useQuery({
-    queryKey: ['campusList'],
-    queryFn: async () => {
-      const result = await axios.get<AuthType['Organization'][]>('/api/campus');
-      return result.data;
-    },
-  });
+  const { campuses } = useCampusQueries({});
+  const message = searchParams.get('message');
 
   const handleSignOut = async () => {
     await signOut();
     router.push('/signin');
   };
 
-  const onCampusInviteEmail: CampusColumnActions['onCampusInviteEmail'] = (
-    data
-  ) => {
-    console.log(data);
-  };
+  React.useEffect(() => {
+    if (message) {
+      toast.info(message);
+    }
+  }, [message]);
 
   return (
     <Card className="w-full max-w-3xl">
@@ -111,15 +98,14 @@ export default function TestPage() {
             )}
           </TabsContent>
           <TabsContent value="users" className="bg-muted rounded-lg p-4">
-            <div className="flex flex-wrap gap-2">
+            <div className="space-y-4">
               <UserTable />
             </div>
           </TabsContent>
           <TabsContent value="campus" className="bg-muted rounded-lg p-4">
-            {/* RBAC: System Admin Actions */}
             <div className="flex w-full flex-col gap-6">
-              {campusList &&
-                campusList.map((campus) => (
+              {campuses.data &&
+                campuses.data?.map((campus) => (
                   <Item variant="outline" key={campus.id}>
                     <ItemMedia variant="image">
                       <Avatar className="size-10">

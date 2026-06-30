@@ -1,29 +1,23 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { CreateCampusRoleDialog } from '@/feature/multi-tenancy/components/create-campus-role-dialog';
-import {
-  CampusRoleColumnActions,
-  CampusRoleRow,
-  getCampusRoleColumns,
-} from '@/feature/multi-tenancy/data/role-columns';
-import { CampusRoleServiceResult } from '@/feature/multi-tenancy/services/campus.service';
-import { AuthType } from '@/utils/auth';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { useParams, useRouter } from 'next/navigation';
 import React from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { useParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserKey, Users } from 'lucide-react';
 import { useCampusQueries } from '@/feature/multi-tenancy/hooks/use-campus-queries';
-import { RolesPermissionTable } from '@/feature/multi-tenancy/components/roles-permission-table';
+import {
+  MembersTable,
+  CreateCampusRoleButton,
+  RolesPermissionTable,
+} from '@/feature/multi-tenancy/components';
 
 export default function TestCampusDetailPage() {
   const params = useParams();
-  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [editRoleValues, setEditRoleValues] = React.useState<CampusRoleRow>();
   const { slug } = params;
   const { campusBySlug } = useCampusQueries({ campusSlug: String(slug) });
+
+  if (campusBySlug.isPending) return <div>Loading...</div>;
 
   return (
     <>
@@ -50,7 +44,9 @@ export default function TestCampusDetailPage() {
               </TabsTrigger>
             </TabsList>
             <TabsContent value="members" className="bg-muted rounded-lg p-4">
-              <p className="text-muted-foreground">Currently not available</p>
+              <div className="space-y-4">
+                <MembersTable campusId={campusBySlug.data?.id!} />
+              </div>
             </TabsContent>
             <TabsContent
               value="departments"
@@ -60,17 +56,16 @@ export default function TestCampusDetailPage() {
             <TabsContent
               value="roles-permission"
               className="bg-muted rounded-lg p-4">
-              <RolesPermissionTable campusSlug={String(slug)} />
+              <CreateCampusRoleButton
+                className="mb-4 ml-auto block"
+                campusId={campusBySlug.data?.id!}
+                disabled={!campusBySlug}
+              />
+              <RolesPermissionTable campusId={campusBySlug.data?.id!} />
             </TabsContent>
           </Tabs>
         </CardContent>
       </Card>
-      <CreateCampusRoleDialog
-        campusId={campusBySlug?.data?.id as string}
-        open={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-        editValues={editRoleValues}
-      />
     </>
   );
 }

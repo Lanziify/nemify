@@ -15,25 +15,20 @@ import {
 import { Button } from '@/components/ui/button';
 
 import {
-  CreateUserInvitationFormValues,
-  createUserInvitationSchema,
-} from '../schema/campus.schema';
-
-import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
 
 import { RowUser } from '@/feature/users/data/user-columns';
 import { useCampusQueries } from '../hooks/use-campus-queries';
-
-import { Field } from '@/components/ui/field';
-import { useInviteUser } from '../hooks/use-campus-mutations';
+import { useCreateCampusInvitation } from '../mutations/invitation.mutation';
+import {
+  CreateCampusInvitationFormValues,
+  createCampusInvitationSchema,
+} from '../schema/invitation.schema';
 
 interface DialogProps {
   user: RowUser;
@@ -41,12 +36,12 @@ interface DialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function CampusInviationDialog({
+export function CampusInvitationDialog({
   user,
   open,
   onOpenChange,
 }: DialogProps) {
-  const invite = useInviteUser();
+  const campusInvitation = useCreateCampusInvitation();
 
   const {
     handleSubmit,
@@ -54,8 +49,8 @@ export function CampusInviationDialog({
     reset,
     watch,
     formState: { errors },
-  } = useForm<CreateUserInvitationFormValues>({
-    resolver: zodResolver(createUserInvitationSchema),
+  } = useForm<CreateCampusInvitationFormValues>({
+    resolver: zodResolver(createCampusInvitationSchema),
     defaultValues: {
       email: user?.email ?? '',
       organizationId: '',
@@ -74,8 +69,8 @@ export function CampusInviationDialog({
     }
   }, [open, reset]);
 
-  const onSubmit = async (values: CreateUserInvitationFormValues) => {
-    await invite.mutateAsync(values);
+  const onSubmit = async (values: CreateCampusInvitationFormValues) => {
+    await campusInvitation.mutateAsync(values);
   };
 
   React.useEffect(() => {

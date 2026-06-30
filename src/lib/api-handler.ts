@@ -1,11 +1,10 @@
 import { auth } from '@/utils/auth';
 import { NextRequest, NextResponse } from 'next/server';
 import { apiErrorParser } from './errors/api-error-parser';
-import { BadRequestError, UnAuthorizedError } from './errors/app-error';
-import { PLATFORM_ROLES } from '@/lib/auth/roles';
+import { BadRequestError } from './errors/app-error';
 import { isPlatformInitialized } from '@/utils/platform';
 
-type Context = { params: Record<string, string | string[]> };
+type Context = { params: Promise<Record<string, string | string[]>> };
 
 type ApiRouteHandler = (
   req: NextRequest,

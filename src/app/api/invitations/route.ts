@@ -1,9 +1,11 @@
+import { CampusRepository } from '@/feature/multi-tenancy/repositories/campus.repository';
 import { createCampusInvitationSchema } from '@/feature/multi-tenancy/schema/invitation.schema';
-import { CampusInvitationService } from '@/feature/multi-tenancy/services/invitation.service';
+import { CampusService } from '@/feature/multi-tenancy/services/campus.service';
 import { apiErrorHandler } from '@/lib/api-handler';
 import { NextResponse } from 'next/server';
 
-const campusInvitationService = new CampusInvitationService();
+const campusRepository = new CampusRepository();
+const campusService = new CampusService(campusRepository);
 
 export const POST = apiErrorHandler(
   async (req) => {
@@ -11,7 +13,7 @@ export const POST = apiErrorHandler(
 
     const parsedValues = createCampusInvitationSchema.parse(body);
 
-    const result = await campusInvitationService.createCampusInvitation(parsedValues);
+    const result = await campusService.createCampusInvitation(parsedValues);
 
     return NextResponse.json(result, { status: 200 });
   },

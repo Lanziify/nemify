@@ -2,13 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from '@/components/ui/card';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import {
   Item,
   ItemContent,
@@ -17,22 +11,12 @@ import {
   ItemActions,
   ItemMedia,
 } from '@/components/ui/item';
-import { AuthType } from '@/utils/auth';
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
+import { useCampusQueries } from '@/feature/multi-tenancy/hooks/use-campus-queries';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 
 export default function TestCampusPage() {
-  const { data, error } = useQuery({
-    queryKey: ['campusList'],
-    queryFn: async () => {
-      const result = await axios.get<AuthType['Organization'][]>('/api/campus');
-      return result.data;
-    },
-  });
-
-  if (!data) return;
+  const { campuses } = useCampusQueries({});
 
   return (
     <Card className="w-full max-w-3xl">
@@ -44,7 +28,7 @@ export default function TestCampusPage() {
       </CardHeader>
       <CardContent>
         <div className="flex w-full flex-col gap-6">
-          {data.map((campus) => (
+          {campuses.data?.map((campus) => (
             <Item variant="outline" key={campus.id}>
               <ItemMedia variant="image">
                 <Avatar className="size-10">
