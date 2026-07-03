@@ -10,8 +10,8 @@ export const createCampusSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, 'Organization name is required')
-    .max(100, 'Organization name must be less than 100 characters'),
+    .min(1, 'Campus name is required')
+    .max(100, 'Campus name must be less than 100 characters'),
   slug: z
     .string()
     .trim()
@@ -93,3 +93,14 @@ export const getCampusMembersQuerySchema = z.object({
 export type GetCampusMembersQuerySchema = typeof getCampusMembersQuerySchema;
 export type GetCampusMembersQueryFormValues =
   z.infer<GetCampusMembersQuerySchema>;
+
+export const createDepartmentSchema = z.object({
+  name: z
+    .string()
+    .trim()
+    .min(1, 'Department name is required')
+    .max(100, 'Department name must be less than 100 characters'),
+});
+
+export type CreateDepartmentSchema = typeof createDepartmentSchema;
+export type CreateDepartmentFormValues = z.infer<CreateDepartmentSchema>;

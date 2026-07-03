@@ -2,13 +2,18 @@ import axios from 'axios';
 import {
   CampusRoleServiceResult,
   CreateCampusRoleServiceResult,
+  CreateCampusServiceResponse,
   GetAllCampusServiceResponse,
   GetCampusMembersServiceResult,
   GetCampusServiceResponse,
   UpdateCampusRoleServiceResult,
 } from '../services/campus.service';
-import { GetCampusMembersQueryFormValues } from '../schema/campus.schema';
+import {
+  CreateCampusFormValues,
+  GetCampusMembersQueryFormValues,
+} from '../schema/campus.schema';
 import { CampusSchemaAdapter } from '../utils/schema-adapter';
+import { withClientErrorHandling } from '@/lib/errors/client-error-parser';
 
 export async function getCampus() {
   const { data } = await axios.get<GetCampusServiceResponse>('/api/campus');
@@ -56,36 +61,46 @@ export async function getCampusMembers({
 }
 
 // MUTATIONS
+
+export const createCampus = withClientErrorHandling(
+  async (values: CreateCampusFormValues) => {
+    const { data } = await axios.post<CreateCampusServiceResponse>(
+      '/api/campus/create',
+      values
+    );
+
+    return data;
+  }
+);
+
 type CreateCampusRoleParams = {
   campusId: string;
   values: ReturnType<CampusSchemaAdapter['transformBaseValuesToCreate']>;
 };
 
-export async function createCampusRole({
-  campusId,
-  values,
-}: CreateCampusRoleParams) {
-  const { data } = await axios.post<CreateCampusRoleServiceResult>(
-    `/api/campus/${campusId}/roles`,
-    values
-  );
+export const createCampusRole = withClientErrorHandling(
+  async ({ campusId, values }: CreateCampusRoleParams) => {
+    const { data } = await axios.post<CreateCampusRoleServiceResult>(
+      `/api/campus/${campusId}/roles`,
+      values
+    );
 
-  return data;
-}
+    return data;
+  }
+);
 
 type UpdateCampusRoleParams = {
   campusId: string;
   values: ReturnType<CampusSchemaAdapter['transformBaseValuesToUpdate']>;
 };
 
-export async function updateCampusRole({
-  campusId,
-  values,
-}: UpdateCampusRoleParams) {
-  const { data } = await axios.patch<UpdateCampusRoleServiceResult>(
-    `/api/campus/${campusId}/roles`,
-    values
-  );
+export const updateCampusRole = withClientErrorHandling(
+  async ({ campusId, values }: UpdateCampusRoleParams) => {
+    const { data } = await axios.patch<UpdateCampusRoleServiceResult>(
+      `/api/campus/${campusId}/roles`,
+      values
+    );
 
-  return data;
-}
+    return data;
+  }
+);

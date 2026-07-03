@@ -17,7 +17,7 @@ A Next.js 16 application with feature-based architecture, Better Auth, and Kysel
 - **Database**: PostgreSQL with Kysely 0.29.2 query builder
 - **Auth**: Better Auth 1.6.18 (email/password, Google OAuth, organizations)
 - **Forms**: React Hook Form + Zod validation
-- **State**: Zustand for client state management
+- **State**: Zustand for client state management, TanStack React Query for server state
 - **UI**: shadcn/ui components (copied, not installed), TailwindCSS 4
 - **Linting**: Biome 2.2.0 (replaces ESLint + Prettier)
 - **TypeScript**: Strict mode, path alias `@/*` → `./src/*`
@@ -46,7 +46,9 @@ bun run format           # Format code with Biome
 
 ### Feature-Based Structure
 
-All features follow this **strict layered architecture** under `src/feature/{feature-name}/`:
+Features under `src/feature/{feature-name}/` follow one of two layered patterns depending on complexity.
+
+**Pattern A — Simple Features** (e.g., `auth`):
 
 ```
 feature/
@@ -58,13 +60,33 @@ feature/
     components/    # Feature-specific UI components
 ```
 
+**Pattern B — Complex Features with Client Data Fetching** (e.g., `multi-tenancy`):
+
+```
+feature/
+  {feature-name}/
+    schema/        # Zod validation schemas + type inference
+    repositories/  # Kysely database queries (data access layer)
+    services/      # Business logic orchestrating repositories
+    api/           # Client-side API fetch functions (called from queries/mutations)
+    queries/       # TanStack React Query queryOptions definitions
+    mutations/     # TanStack React Query mutation hooks
+    hooks/         # Custom hooks composing multiple queries
+    utils/         # Feature-local utilities (e.g., schema adapters)
+    data/          # Table column definitions for dynamic tables
+    components/    # Feature-specific UI components
+```
+
 **Layer rules:**
 
 1. **Schema** defines validation + types (e.g., `signInEmailPasswordSchema`)
 2. **Repository** executes database queries using Kysely (e.g., `findUserByEmail`)
 3. **Service** contains business logic, orchestrates repositories (e.g., `createSystemAdminAccount`)
 4. **Actions** wrap services for client-side use with `'use server'` directive
-5. **Components** consume actions and render UI
+5. **API** contains client-side fetch functions that call API routes (used by queries/mutations)
+6. **Queries/Mutations** define TanStack React Query options and mutation hooks
+7. **Hooks** compose multiple queries into a single reusable hook
+8. **Components** consume actions, mutations, and query hooks to render UI
 
 **Never skip layers.** Always validate in schema, query in repository, orchestrate in service.
 
@@ -142,7 +164,12 @@ Always use "Campus" terminology in code and database queries.
   - `system_user` - default role (set in Better Auth config)
 - **Campus Role**: Per-campus roles managed by Better Auth's organization plugin
 
-**Access Control**: [src/data/permissions.ts](src/data/permissions.ts) uses Better Auth's `createAccessControl`.
+**Access Control**: [src/lib/auth/permissions.ts](src/lib/auth/permissions.ts) uses Better Auth's `createAccessControl`. Related files:
+
+- [src/lib/auth/permissions.ts](src/lib/auth/permissions.ts) - access control setup + global role definitions
+- [src/lib/auth/policies.ts](src/lib/auth/policies.ts) - generic policy type definitions
+- [src/lib/auth/policies.campus.ts](src/lib/auth/policies.campus.ts) - campus-specific policies (campus, member, invitation, role, ac)
+- [src/lib/auth/roles.ts](src/lib/auth/roles.ts) - platform role constants
 
 **Client-Side Auth**:
 
@@ -185,15 +212,18 @@ type Result<T, E> = { data: T; error: null } | { data: null; error: E };
 **Custom Errors**: [src/lib/errors/app-error.ts](src/lib/errors/app-error.ts)
 
 - `BadRequestError` (400)
+- `UnAuthorizedError` (401)
+- `ServerError` (500)
 - `DatabaseError` (500)
 - All extend `AppError` with `errorCode`, `statusCode`, `details`
 
 **Error Parsers**:
 
-- **Actions**: `actionErrorParser` - returns `{ code, message, details }` object
-- **API Routes**: `apiErrorParser` - returns `NextResponse` with status code
+- **Actions**: `actionErrorParser` ([src/lib/errors/action-error-parser.ts](src/lib/errors/action-error-parser.ts)) - returns `{ code, message, details }` object
+- **API Routes**: `apiErrorParser` ([src/lib/errors/api-error-parser.ts](src/lib/errors/api-error-parser.ts)) - returns `NextResponse` with status code
+- **Client**: `clientErrorParser` ([src/lib/errors/client-error-parser.ts](src/lib/errors/client-error-parser.ts)) - parses errors on the client side
 
-Both handle: ZodError, Better Auth APIError, AppError, generic errors.
+All handle: ZodError, Better Auth APIError, AppError, generic errors.
 
 ### API Routes
 
@@ -219,8 +249,9 @@ export const POST = apiErrorHandler(
 
 **Available Guards**:
 
-- `requireSession` - ensures active Better Auth session
+- `requiredSession` - ensures active Better Auth session
 - `requiredInternalKey` - checks `x-internal-secret-key` header for internal-only routes
+- `requiredUninitializedPlatform` - ensures platform has not yet been initialized (for setup routes)
 
 **Create Custom Guards**:
 
@@ -231,6 +262,65 @@ const myGuard: ApiGuard = async (req) => {
   if (!condition) throw new BadRequestError('Message');
 };
 ```
+
+### React Query Patterns
+
+Use TanStack React Query for features that require client-side data fetching (Pattern B).
+
+**Query Definitions** (`queries/{name}.query.ts`):
+
+```typescript
+import { queryOptions } from '@tanstack/react-query';
+import { getCampuses } from '../api/campus.api';
+
+export const campusQueries = {
+  all: ['campuses'] as const,
+  campuses: () =>
+    queryOptions({
+      queryKey: ['campuses'],
+      queryFn: () => getCampuses(),
+    }),
+};
+```
+
+**Mutation Hooks** (`mutations/{name}.mutation.ts`):
+
+```typescript
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { createCampusRole } from '../api/campus.api';
+
+export const useCreateCampusRole = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createCampusRole,
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ['campusRoles'] });
+    },
+  });
+};
+```
+
+**Custom Query Hooks** (`hooks/use-{name}-queries.ts`):
+
+```typescript
+export const useCampusQueries = ({ campusId, campusSlug }: Params) => {
+  const campus = useQuery(campusQueries.campus(campusId));
+  const members = useQuery(campusQueries.members(campusId));
+  return { campus, members };
+};
+```
+
+**Query Client**: [src/utils/query-client.ts](src/utils/query-client.ts) — shared React Query client instance.
+
+### Platform Utilities
+
+- [src/utils/platform.ts](src/utils/platform.ts) — platform initialization state helpers:
+  - `isPlatformInitialized()` - check if platform setup is complete
+  - `setPlatformInitialized(value)` - update platform state
+  - `loadPlatformState()` - load state from database
+  - `refreshPlatformState()` - sync state with database
+
+- [src/utils/policy-engine.ts](src/utils/policy-engine.ts) — `PolicyEngine` class for evaluating access control policies.
 
 ### Component Organization
 
@@ -272,6 +362,8 @@ const onSubmit = async (data: FormValues) => {
 **Utility Helpers**:
 
 - `cn()` in [src/lib/utils.ts](src/lib/utils.ts) - merges classNames with `clsx` + `tailwind-merge`
+- `toSentenceCase()` - normalizes separators and capitalizes
+- `toLowerCase()` - normalizes to lowercase
 
 ## Code Style
 
@@ -307,6 +399,10 @@ const onSubmit = async (data: FormValues) => {
 - [src/utils/db.ts](src/utils/db.ts) - Kysely database instance
 - [src/utils/auth.ts](src/utils/auth.ts) - Better Auth server config
 - [src/utils/auth-client.ts](src/utils/auth-client.ts) - Better Auth client
+- [src/utils/platform.ts](src/utils/platform.ts) - Platform initialization helpers
+- [src/utils/policy-engine.ts](src/utils/policy-engine.ts) - PolicyEngine class
+- [src/utils/query-client.ts](src/utils/query-client.ts) - React Query client instance
 - [src/lib/api-handler.ts](src/lib/api-handler.ts) - API error handling and guards
 - [src/lib/errors/safe-catch.ts](src/lib/errors/safe-catch.ts) - Result type wrapper
-- [src/data/permissions.ts](src/data/permissions.ts) - Access control definitions
+- [src/lib/auth/permissions.ts](src/lib/auth/permissions.ts) - Access control definitions
+- [src/lib/auth/policies.campus.ts](src/lib/auth/policies.campus.ts) - Campus-specific policies

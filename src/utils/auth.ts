@@ -60,6 +60,9 @@ export const auth = betterAuth({
     organization({
       ac: campusAccessControl,
       roles: campusRoles,
+      teams: {
+        enabled: true,
+      },
       dynamicAccessControl: {
         enabled: true,
       },
@@ -77,6 +80,7 @@ export const auth = betterAuth({
           modelName: 'campusInvitation',
           fields: {
             organizationId: 'campusId',
+            teamId: 'departmentId',
           },
         },
         organizationRole: {
@@ -85,9 +89,22 @@ export const auth = betterAuth({
             organizationId: 'campusId',
           },
         },
+        team: {
+          modelName: 'department',
+          fields: {
+            organizationId: 'campusId',
+          },
+        },
+        teamMember: {
+          modelName: 'departmentMember',
+          fields: {
+            teamId: 'departmentId',
+          },
+        },
         session: {
           fields: {
             activeOrganizationId: 'activeCampusId',
+            activeTeamId: 'activeDepartmentId',
           },
         },
       },

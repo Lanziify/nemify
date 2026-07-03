@@ -39,6 +39,7 @@ export interface Campus {
 export interface CampusInvitation {
   campusId: string;
   createdAt: Generated<Timestamp>;
+  departmentId: string | null;
   email: string;
   expiresAt: Timestamp;
   id: string;
@@ -65,10 +66,18 @@ export interface CampusRole {
 }
 
 export interface Department {
-  campusId: string | null;
+  campusId: string;
+  createdAt: Timestamp;
   id: string;
-  name: string | null;
-  slug: string | null;
+  name: string;
+  updatedAt: Timestamp | null;
+}
+
+export interface DepartmentMember {
+  createdAt: Timestamp | null;
+  departmentId: string;
+  id: string;
+  userId: string;
 }
 
 export interface Platform {
@@ -80,6 +89,7 @@ export interface Platform {
 
 export interface Session {
   activeCampusId: string | null;
+  activeDepartmentId: string | null;
   createdAt: Generated<Timestamp>;
   expiresAt: Timestamp;
   id: string;
@@ -121,6 +131,7 @@ export interface DB {
   campusMember: CampusMember;
   campusRole: CampusRole;
   department: Department;
+  departmentMember: DepartmentMember;
   platform: Platform;
   session: Session;
   user: User;

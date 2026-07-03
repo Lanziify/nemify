@@ -22,8 +22,8 @@ export function toLowerCase(value: string): string {
   return normalizeSeparators(value).toLowerCase();
 }
 
-export function slugify(value: string): string {
-  return value
+export function slugify(value?: string): string {
+  return (value ?? '')
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-zA-Z0-9]+/g, '-')

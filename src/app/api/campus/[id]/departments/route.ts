@@ -1,0 +1,28 @@
+import { createDepartmentSchema } from '@/feature/multi-tenancy/schema/campus.schema';
+import { CampusRepository } from '@/feature/multi-tenancy/repositories/campus.repository';
+import { CampusService } from '@/feature/multi-tenancy/services/campus.service';
+import { apiErrorHandler, requiredSession } from '@/lib/api-handler';
+import { NextRequest, NextResponse } from 'next/server';
+
+const campusRepository = new CampusRepository();
+const campusService = new CampusService(campusRepository);
+
+export const GET = apiErrorHandler(
+  async (req: NextRequest, { params }) => {
+    const { id } = await params;
+    const departments = await campusService.getDepartments(String(id));
+    return NextResponse.json(departments, { status: 200 });
+  },
+  { guards: [requiredSession] }
+);
+
+export const POST = apiErrorHandler(
+  async (req: NextRequest, { params }) => {
+    const { id } = await params;
+    const body = await req.json();
+    const { name } = createDepartmentSchema.parse(body);
+    const department = await campusService.createDepartment(name, String(id));
+    return NextResponse.json(department, { status: 201 });
+  },
+  { guards: [requiredSession] }
+);

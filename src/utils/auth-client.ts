@@ -1,5 +1,9 @@
 import { createAuthClient } from 'better-auth/client';
-import { adminClient, inferAdditionalFields, organizationClient } from 'better-auth/client/plugins';
+import {
+  adminClient,
+  inferAdditionalFields,
+  organizationClient,
+} from 'better-auth/client/plugins';
 import { auth } from './auth';
 
 export const authClient = createAuthClient({
@@ -10,10 +14,13 @@ export const authClient = createAuthClient({
   plugins: [
     adminClient(),
     organizationClient({
+      teams: {
+        enabled: true,
+      },
       dynamicAccessControl: {
         enabled: true,
       },
     }),
-    inferAdditionalFields<typeof auth>()
+    inferAdditionalFields<typeof auth>(),
   ],
 });

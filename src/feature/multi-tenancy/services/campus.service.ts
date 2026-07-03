@@ -102,6 +102,25 @@ export class CampusService {
       headers: await headers(),
     });
   }
+
+  async createDepartment(name: string, campusId: string) {
+    return await auth.api.createTeam({
+      body: {
+        name,
+        organizationId: campusId,
+      },
+      headers: await headers(),
+    });
+  }
+
+  async getDepartments(campusId: string) {
+    return await auth.api.listOrganizationTeams({
+      query: {
+        organizationId: campusId,
+      },
+      headers: await headers(),
+    });
+  }
 }
 
 export type GetAllCampusServiceResponse = Awaited<
@@ -166,4 +185,12 @@ export type GetCampusMembersQuery = NonNullable<
 
 export type GetCampusMembersServiceResult = Awaited<
   ReturnType<CampusService['getCampusMembers']>
+>;
+
+export type CreateDepartmentServiceResult = Awaited<
+  ReturnType<CampusService['createDepartment']>
+>;
+
+export type GetDepartmentsServiceResult = Awaited<
+  ReturnType<CampusService['getDepartments']>
 >;
