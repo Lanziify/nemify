@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
 import {
   CreateCampusFormValues,
   createCampusSchema,
-} from '@/feature/multi-tenancy/schema/campus.schema';
+} from '@/feature/campus/schema/campus.schema';
 import { slugify } from '@/lib/utils';
 import { zodResolver } from '@hookform/resolvers/zod';
 import React from 'react';

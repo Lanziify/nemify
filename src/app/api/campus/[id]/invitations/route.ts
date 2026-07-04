@@ -1,5 +1,5 @@
-import { createCampusInvitationSchema } from '@/feature/multi-tenancy/schema/invitation.schema';
-import { CampusInvitationService } from '@/feature/multi-tenancy/services/invitation.service';
+import { createCampusInvitationSchema } from '@/feature/campus/schema/invitation.schema';
+import { CampusInvitationService } from '@/feature/campus/services/invitation.service';
 import { apiErrorHandler } from '@/lib/api-handler';
 import { NextResponse } from 'next/server';
 
@@ -11,7 +11,8 @@ export const POST = apiErrorHandler(
 
     const parsedValues = createCampusInvitationSchema.parse(body);
 
-    const result = await campusInvitationService.createCampusInvitation(parsedValues);
+    const result =
+      await campusInvitationService.createCampusInvitation(parsedValues);
 
     return NextResponse.json(result, { status: 200 });
   },

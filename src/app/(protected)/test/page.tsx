@@ -19,13 +19,13 @@ import {
 } from '@/components/ui/item';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuthStore } from '@/store/auth-store';
-import { CreateCampusButton } from '@/feature/multi-tenancy/components';
+import { CreateCampusButton } from '@/feature/campus/components';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { User, School, Users, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import React from 'react';
 import { UserTable } from '@/feature/users/components/user-table';
-import { useCampusQueries } from '@/feature/multi-tenancy/hooks/use-campus-queries';
+import { useCampusQueries } from '@/feature/campus/hooks/use-campus-queries';
 import { toast } from 'sonner';
 
 export default function TestPage() {

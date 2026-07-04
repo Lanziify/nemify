@@ -28,6 +28,16 @@ export class CampusRepository {
       .where('slug', '=', slug)
       .executeTakeFirstOrThrow();
   }
+
+  async findCampusOwner(campusId: string) {
+    return db
+      .selectFrom('campusMember')
+      .leftJoin('user', 'user.id', 'campusMember.userId')
+      .where('campusMember.campusId', '=', campusId)
+      .where('campusMember.role', '=', 'owner')
+      .selectAll('user')
+      .executeTakeFirstOrThrow();
+  }
 }
 
 export class CampusPolicy {}

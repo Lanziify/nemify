@@ -11,7 +11,7 @@ import {
   ItemActions,
   ItemMedia,
 } from '@/components/ui/item';
-import { useCampusQueries } from '@/feature/multi-tenancy/hooks/use-campus-queries';
+import { useCampusQueries } from '@/feature/campus/hooks/use-campus-queries';
 import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 

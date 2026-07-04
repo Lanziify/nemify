@@ -12,7 +12,7 @@ import {
   StepperTitle,
   StepperTrigger,
 } from '@/components/ui/stepper';
-import { CreateCampusFormValues } from '@/feature/multi-tenancy/schema/campus.schema';
+import { CreateCampusFormValues } from '@/feature/campus/schema/campus.schema';
 import { cn } from '@/lib/utils';
 import { AdminAccountSetupFormValues } from '@/feature/onboarding/schema/admin-account.schema';
 import AdminAccountStep from '@/feature/onboarding/components/wizard-steps/admin-account-setup';

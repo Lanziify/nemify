@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { CampusInvitationAcceptance } from '@/feature/multi-tenancy/components';
+import { CampusInvitationAcceptance } from '@/feature/campus/components';
 
 export default function CampusInvitationPage() {
   return (

@@ -1,5 +1,5 @@
-import { CampusRepository } from '@/feature/multi-tenancy/repositories/campus.repository';
-import { CampusService } from '@/feature/multi-tenancy/services/campus.service';
+import { CampusRepository } from '@/feature/campus/repositories/campus.repository';
+import { CampusService } from '@/feature/campus/services/campus.service';
 import { apiErrorHandler } from '@/lib/api-handler';
 import { NextRequest, NextResponse } from 'next/server';
 

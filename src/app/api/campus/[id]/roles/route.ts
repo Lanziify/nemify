@@ -1,9 +1,9 @@
-import { CampusRepository } from '@/feature/multi-tenancy/repositories/campus.repository';
+import { CampusRepository } from '@/feature/campus/repositories/campus.repository';
 import {
   createCampusRoleSchema,
   updateCampusRoleSchema,
-} from '@/feature/multi-tenancy/schema/campus.schema';
-import { CampusService } from '@/feature/multi-tenancy/services/campus.service';
+} from '@/feature/campus/schema/campus.schema';
+import { CampusService } from '@/feature/campus/services/campus.service';
 import { apiErrorHandler } from '@/lib/api-handler';
 import { DatabaseError, ServerError } from '@/lib/errors/app-error';
 import { NoResultError } from 'kysely';

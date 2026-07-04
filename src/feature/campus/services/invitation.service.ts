@@ -1,12 +1,13 @@
 import { auth } from '@/utils/auth';
 import { headers } from 'next/headers';
+import { CreateOwnerInvitationFormValues } from '../schema/invitation.schema';
 
 export class CampusInvitationService {
   private async getRequestHeaders() {
     return await headers();
   }
 
-  async createCampusInvitation(values: CreateCampusInvitationBody) {
+  async createCampusInvitation(values: CreateInvitationBody) {
     return auth.api.createInvitation({
       body: values,
       headers: await this.getRequestHeaders(),
@@ -32,7 +33,7 @@ export class CampusInvitationService {
   }
 }
 
-export type CreateCampusInvitationBody = NonNullable<
+export type CreateInvitationBody = NonNullable<
   Parameters<typeof auth.api.createInvitation>[0]
 >['body'];
 

@@ -23,7 +23,7 @@ import { GetUsersListServiceResponse } from '../service/user.service';
 import { GetUsersListQueryFormValues } from '../schemaa/user.schema';
 
 import { toast } from 'sonner';
-import { CampusInvitationDialog } from '@/feature/multi-tenancy/components/user-invitation-dialog';
+import { CampusInvitationDialog } from '@/feature/campus/components/user-invitation-dialog';
 
 interface UserTableContentProps {
   onQueryChange: (

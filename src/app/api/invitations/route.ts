@@ -1,6 +1,6 @@
-import { CampusRepository } from '@/feature/multi-tenancy/repositories/campus.repository';
-import { createCampusInvitationSchema } from '@/feature/multi-tenancy/schema/invitation.schema';
-import { CampusService } from '@/feature/multi-tenancy/services/campus.service';
+import { CampusRepository } from '@/feature/campus/repositories/campus.repository';
+import { createCampusInvitationSchema } from '@/feature/campus/schema/invitation.schema';
+import { CampusService } from '@/feature/campus/services/campus.service';
 import { apiErrorHandler } from '@/lib/api-handler';
 import { NextResponse } from 'next/server';
 

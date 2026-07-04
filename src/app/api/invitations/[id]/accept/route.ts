@@ -1,9 +1,8 @@
-import { CampusInvitationService } from '@/feature/multi-tenancy/services/invitation.service';
+import { CampusInvitationService } from '@/feature/campus/services/invitation.service';
 import { apiErrorHandler } from '@/lib/api-handler';
 import { NextResponse } from 'next/server';
 
-
-const campusInvitationService = new CampusInvitationService()
+const campusInvitationService = new CampusInvitationService();
 
 export const POST = apiErrorHandler(
   async (_, { params }) => {

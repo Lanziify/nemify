@@ -5,12 +5,12 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { useParams } from 'next/navigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserKey, Users } from 'lucide-react';
-import { useCampusQueries } from '@/feature/multi-tenancy/hooks/use-campus-queries';
+import { useCampusQueries } from '@/feature/campus/hooks/use-campus-queries';
 import {
   MembersTable,
   CreateCampusRoleButton,
   RolesPermissionTable,
-} from '@/feature/multi-tenancy/components';
+} from '@/feature/campus/components';
 
 export default function TestCampusDetailPage() {
   const params = useParams();

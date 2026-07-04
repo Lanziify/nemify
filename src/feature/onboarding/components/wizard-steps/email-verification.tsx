@@ -8,7 +8,7 @@ import {
   signUpAdminAccount,
   updatePlatformState,
 } from '@/feature/auth/actions/auth.action';
-import { useCreateCampus } from '@/feature/multi-tenancy/mutations/campus.mutation';
+import { useCreateCampus } from '@/feature/campus/mutations/campus.mutation';
 import { authClient } from '@/utils/auth-client';
 import { CheckCircle2, MailIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';

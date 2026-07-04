@@ -7,7 +7,7 @@ import {
 } from '@/components/provider/dynamic-table-provider';
 
 import { toast } from 'sonner';
-import { CampusInvitationDialog } from '@/feature/multi-tenancy/components/user-invitation-dialog';
+import { CampusInvitationDialog } from '@/feature/campus/components/user-invitation-dialog';
 import { getCampusColumns } from '../data/campus-colums';
 import { useCampusQueries } from '../hooks/use-campus-queries';
 import { CampusRoleServiceResult } from '../services/campus.service';
@@ -61,12 +61,8 @@ function RolesPermissionContent() {
   );
 }
 
-export const RolesPermissionTable = ({
-  campusId,
-}: {
-  campusId?: string;
-}) => {
-  const {  roles } = useCampusQueries({ campusId });
+export const RolesPermissionTable = ({ campusId }: { campusId?: string }) => {
+  const { roles } = useCampusQueries({ campusId });
 
   const [editRoleValues, setEditRoleValues] = React.useState<CampusRoleRow>();
 
