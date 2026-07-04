@@ -1,8 +1,7 @@
-import { ColumnDef } from '@tanstack/react-table';
-import { GetCampusRoleServiceResult } from '../services/campus.service';
 import { Button } from '@/components/ui/button';
+import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, Ellipsis } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,73 +15,45 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import { getPolicyDescription, PolicyPath } from '@/lib/auth/policies';
-import { CAMPUS_POLICIES } from '@/lib/auth/policies.campus';
+import { GetCampusDepartmentsServiceResult } from '../services/campus.service';
 
-export type CampusRoleColumnActions = {
-  onEditRole: (row: GetCampusRoleServiceResult[0]) => void;
-};
+export type RowDepartment = GetCampusDepartmentsServiceResult[0];
 
-export type CampusRoleRow = Parameters<
-  CampusRoleColumnActions['onEditRole']
->[0];
+export interface DepartmentRowActions {
+  // onInviteUserByEmail: (row: GetUsersListServiceResponse['users'][0]) => void;
+}
 
-export const getCampusRoleColumns = (
-  actions: CampusRoleColumnActions
-): ColumnDef<GetCampusRoleServiceResult[0]>[] => {
+export const getDepartmentsColumns = (
+  actions: DepartmentRowActions
+): ColumnDef<RowDepartment>[] => {
   return [
     {
-      accessorKey: 'role',
-      size: 50,
+      accessorKey: 'id',
+      size: 100,
       header: ({ column }) => (
         <Button
           variant="ghost"
           className="p-0! hover:bg-transparent hover:opacity-50"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Role
+          Id
           <ArrowUpDown size={16} />
         </Button>
       ),
-      cell: ({ row }) => <div className="truncate">{row.getValue('role')}</div>,
+      cell: ({ row }) => <div className="truncate">{row.getValue('id')}</div>,
     },
+
     {
-      accessorKey: 'permission',
+      accessorKey: 'name',
       header: ({ column }) => (
         <Button
           variant="ghost"
           className="p-0! hover:bg-transparent hover:opacity-50"
           onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
-          Permissions
+          Name
           <ArrowUpDown size={16} />
         </Button>
       ),
-      cell: ({ row }) => (
-        <div className="flex w-full flex-wrap gap-1">
-          {Object.entries(row.original.permission).map(([source, actions]) => {
-            return actions.map((action, j) => {
-              const path = `${String(source)}.${action}` as PolicyPath<
-                typeof CAMPUS_POLICIES
-              >;
-
-              return (
-                <Tooltip key={String(source + ':' + action)}>
-                  <TooltipTrigger asChild>
-                    <Badge variant="outline">{source + ':' + action}</Badge>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{getPolicyDescription(CAMPUS_POLICIES, path)}</p>
-                  </TooltipContent>
-                </Tooltip>
-              );
-            });
-          })}
-        </div>
-      ),
+      cell: ({ row }) => <div className="truncate">{row.getValue('name')}</div>,
     },
     {
       accessorKey: 'action',
@@ -103,11 +74,9 @@ export const getCampusRoleColumns = (
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuGroup>
-                  <DropdownMenuLabel>Members</DropdownMenuLabel>
+                  <DropdownMenuLabel>Campus</DropdownMenuLabel>
                   <DropdownMenuSub>
-                    <DropdownMenuSubTrigger>
-                      Invite users
-                    </DropdownMenuSubTrigger>
+                    <DropdownMenuSubTrigger>Invite user</DropdownMenuSubTrigger>
                     <DropdownMenuPortal>
                       <DropdownMenuSubContent>
                         <DropdownMenuItem>Email</DropdownMenuItem>
@@ -117,15 +86,11 @@ export const getCampusRoleColumns = (
                       </DropdownMenuSubContent>
                     </DropdownMenuPortal>
                   </DropdownMenuSub>
-                  <DropdownMenuItem>Members</DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
                   <DropdownMenuLabel>Manage</DropdownMenuLabel>
-                  <DropdownMenuItem
-                    onClick={() => actions.onEditRole(row.original)}>
-                    Edit Role
-                  </DropdownMenuItem>
+                  <DropdownMenuItem>Edit user</DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>
             </DropdownMenu>

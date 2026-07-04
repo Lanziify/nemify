@@ -2,6 +2,7 @@ import { queryOptions } from '@tanstack/react-query';
 import {
   getCampus,
   getCampusBySlug,
+  getCampusDepartments,
   getCampuses,
   GetCampusMemberParams,
   getCampusMembers,
@@ -41,6 +42,13 @@ export const campusQueries = {
     queryOptions({
       queryKey: ['campusMembers', query],
       queryFn: () => getCampusMembers({ campusId, query }),
+      enabled: !!campusId,
+    }),
+
+  departments: (campusId?: string) =>
+    queryOptions({
+      queryKey: ['campusDepartments', campusId],
+      queryFn: () => getCampusDepartments(campusId!),
       enabled: !!campusId,
     }),
 };

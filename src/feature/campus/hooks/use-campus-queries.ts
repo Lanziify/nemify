@@ -31,11 +31,18 @@ export const useCampusQueries = ({
     campusQueries.roles(campusId ?? campusBySlug.data?.id ?? campus.data?.id)
   );
 
+  const departments = useQuery(
+    campusQueries.departments(
+      campusId ?? campusBySlug.data?.id ?? campus.data?.id
+    )
+  );
+
   return {
     campus,
     campusBySlug,
     campuses,
-    roles,
     members,
+    roles,
+    departments,
   };
 };

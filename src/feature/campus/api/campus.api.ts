@@ -1,12 +1,14 @@
 import axios from 'axios';
 import {
-  CampusRoleServiceResult,
+  GetCampusRoleServiceResult,
   CreateCampusRoleServiceResult,
   CreateCampusServiceResponse,
   GetAllCampusServiceResponse,
   GetCampusMembersServiceResult,
   GetCampusServiceResponse,
   UpdateCampusRoleServiceResult,
+  CreateCampusDepartmentServiceResult,
+  GetCampusDepartmentsServiceResult,
 } from '../services/campus.service';
 import {
   CreateCampusFormValues,
@@ -36,7 +38,7 @@ export async function getCampuses() {
 }
 
 export async function getCampusRoles(id: string) {
-  const { data } = await axios.get<CampusRoleServiceResult>(
+  const { data } = await axios.get<GetCampusRoleServiceResult>(
     `/api/campus/${id}/roles`
   );
 
@@ -55,6 +57,14 @@ export async function getCampusMembers({
   const { data } = await axios.get<GetCampusMembersServiceResult>(
     `/api/campus/${campusId}/members`,
     { params: query }
+  );
+
+  return data;
+}
+
+export async function getCampusDepartments(campusId: string) {
+  const { data } = await axios.get<GetCampusDepartmentsServiceResult>(
+    `/api/campus/${campusId}/departments`
   );
 
   return data;
@@ -99,6 +109,22 @@ export const updateCampusRole = withClientErrorHandling(
     const { data } = await axios.patch<UpdateCampusRoleServiceResult>(
       `/api/campus/${campusId}/roles`,
       values
+    );
+
+    return data;
+  }
+);
+
+type CreateDepartmentParams = {
+  campusId: string;
+  name: string;
+};
+
+export const createCampusDepartment = withClientErrorHandling(
+  async ({ campusId, name }: CreateDepartmentParams) => {
+    const { data } = await axios.post<CreateCampusDepartmentServiceResult>(
+      `/api/campus/${campusId}/departments`,
+      { name }
     );
 
     return data;

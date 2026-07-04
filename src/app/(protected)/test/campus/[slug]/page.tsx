@@ -10,7 +10,9 @@ import {
   MembersTable,
   CreateCampusRoleButton,
   RolesPermissionTable,
+  CreateCampusDepartmentButton,
 } from '@/feature/campus/components';
+import { DepartmentTable } from '@/feature/campus/components';
 
 export default function TestCampusDetailPage() {
   const params = useParams();
@@ -51,7 +53,12 @@ export default function TestCampusDetailPage() {
             <TabsContent
               value="departments"
               className="bg-muted rounded-lg p-4">
-              <p className="text-muted-foreground">Currently not available</p>
+              <CreateCampusDepartmentButton
+                className="mb-4 ml-auto block"
+                campusId={campusBySlug.data?.id!}
+                disabled={!campusBySlug}
+              />
+              <DepartmentTable campusId={campusBySlug.data?.id!} />
             </TabsContent>
             <TabsContent
               value="roles-permission"

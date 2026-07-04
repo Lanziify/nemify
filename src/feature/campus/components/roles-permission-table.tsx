@@ -10,7 +10,7 @@ import { toast } from 'sonner';
 import { CampusInvitationDialog } from '@/feature/campus/components/user-invitation-dialog';
 import { getCampusColumns } from '../data/campus-colums';
 import { useCampusQueries } from '../hooks/use-campus-queries';
-import { CampusRoleServiceResult } from '../services/campus.service';
+import { GetCampusRoleServiceResult } from '../services/campus.service';
 import {
   CampusRoleColumnActions,
   CampusRoleRow,
@@ -28,7 +28,7 @@ function RolesPermissionContent() {
   //   {
   //   onQueryChange,
   // }: RolesPermissionContentProps
-  const { table } = useDynamicTableContext<CampusRoleServiceResult[0]>();
+  const { table } = useDynamicTableContext<GetCampusRoleServiceResult[0]>();
 
   // const pagination = table.getState().pagination;
 
@@ -99,7 +99,7 @@ export const RolesPermissionTable = ({ campusId }: { campusId?: string }) => {
 
   return (
     <React.Fragment>
-      <DynamicTableProvider<CampusRoleServiceResult[0]>
+      <DynamicTableProvider<GetCampusRoleServiceResult[0]>
         initialColumns={getCampusRoleColumns({ onEditRole })}
         initialData={roles.data ?? []}>
         <RolesPermissionContent />

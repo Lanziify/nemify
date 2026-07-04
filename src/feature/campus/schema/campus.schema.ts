@@ -94,7 +94,7 @@ export type GetCampusMembersQuerySchema = typeof getCampusMembersQuerySchema;
 export type GetCampusMembersQueryFormValues =
   z.infer<GetCampusMembersQuerySchema>;
 
-export const createDepartmentSchema = z.object({
+export const createCampusDepartmentSchema = z.object({
   name: z
     .string()
     .trim()
@@ -102,5 +102,6 @@ export const createDepartmentSchema = z.object({
     .max(100, 'Department name must be less than 100 characters'),
 });
 
-export type CreateDepartmentSchema = typeof createDepartmentSchema;
-export type CreateDepartmentFormValues = z.infer<CreateDepartmentSchema>;
+export type CreateCampusDepartmentSchema = typeof createCampusDepartmentSchema;
+export type CreateCampusDepartmentFormValues =
+  z.infer<CreateCampusDepartmentSchema>;

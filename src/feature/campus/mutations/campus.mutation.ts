@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import {
   createCampus,
+  createCampusDepartment,
   createCampusRole,
   updateCampusRole,
 } from '../api/campus.api';
@@ -43,6 +44,20 @@ export const useUpdateCampusRole = () => {
     onSuccess() {
       queryClient.invalidateQueries({
         queryKey: ['campusRoles'],
+      });
+    },
+  });
+};
+
+export const useCreateCampusDepartment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: createCampusDepartment,
+
+    onSuccess() {
+      queryClient.invalidateQueries({
+        queryKey: ['campusDepartments'],
       });
     },
   });

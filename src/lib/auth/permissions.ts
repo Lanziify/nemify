@@ -8,7 +8,10 @@ export const campusStatement = getPolicyStatement(CAMPUS_POLICIES);
 export const platformAccessControl = createAccessControl({
   ...defaultStatements,
 });
-export const campusAccessControl = createAccessControl(campusStatement);
+export const campusAccessControl = createAccessControl({
+  ...campusStatement,
+  ...{ team: ['create', 'read', 'update', 'delete'] },
+});
 
 export const globalRoles = {
   admin: platformAccessControl.newRole({
@@ -28,5 +31,7 @@ export const campusRoles = {
     role: ['assign', 'update'],
 
     ac: ['create', 'read', 'update', 'delete'],
+
+    team: ['create', 'read', 'update', 'delete'],
   }),
 };
